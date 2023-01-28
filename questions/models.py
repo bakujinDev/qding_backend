@@ -7,13 +7,13 @@ class Question(TimeModel, ViewsModel, VotesModel):
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
-        related_name="creator",
+        related_name="create_questions",
         null=True,
     )
     editor = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
-        related_name="editor",
+        related_name="edit_questions",
         null=True,
         blank=True,
     )
@@ -22,3 +22,6 @@ class Question(TimeModel, ViewsModel, VotesModel):
     )
     content = models.TextField(max_length=3000)
     # tag= models.ManyToManyField(to)
+
+    def __str__(self) -> str:
+        return self.title
