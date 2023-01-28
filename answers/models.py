@@ -6,9 +6,7 @@ from questions.models import Question
 
 class Answer(TimeModel, ViewsModel, VotesModel):
     question = models.ForeignKey(
-        Question,
-        on_delete=models.SET_NULL,
-        null=True,
+        Question, on_delete=models.SET_NULL, null=True, related_name="answers"
     )
     creator = models.ForeignKey(
         User,
@@ -19,4 +17,4 @@ class Answer(TimeModel, ViewsModel, VotesModel):
     content = models.TextField(max_length=3000)
 
     def __str__(self) -> str:
-        return f"{self.creator} answered ${self.question}"
+        return f"{self.creator} answered {self.question}"

@@ -5,7 +5,6 @@ from .models import User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    date_hierarchy = "date_joined"
 
     list_display = (
         "name",
@@ -20,6 +19,8 @@ class CustomUserAdmin(UserAdmin):
         "name",
         "username",
     )
+
+    date_hierarchy = "date_joined"
 
     fieldsets = (
         (

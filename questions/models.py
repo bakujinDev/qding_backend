@@ -21,6 +21,14 @@ class Question(TimeModel, ViewsModel, VotesModel):
         max_length=50,
     )
     content = models.TextField(max_length=3000)
+    select_answer = models.OneToOneField(
+        "answers.Answer",
+        on_delete=models.SET_NULL,
+        related_name="select_question",
+        default='',
+        null=True,
+        blank=True,
+    )
     # tag= models.ManyToManyField(to)
 
     def __str__(self) -> str:

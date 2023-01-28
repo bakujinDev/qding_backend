@@ -1,14 +1,14 @@
 from django.contrib import admin
-from .models import Question
+from .models import Comment
 
 
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+
     list_display = (
+        "target",
         "creator",
-        "title",
-        "votes",
         "updated_at",
     )
-
+    
     date_hierarchy = "updated_at"

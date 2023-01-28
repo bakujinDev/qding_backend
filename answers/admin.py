@@ -10,3 +10,5 @@ class AnswerAdmin(admin.ModelAdmin):
         "votes",
         "updated_at",
     )
+
+    date_hierarchy = "updated_at"
