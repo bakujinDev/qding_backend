@@ -35,7 +35,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    #     "rest_framework.authtoken",
+    "rest_framework.authtoken",
     #     "strawberry.django",
 ]
 
@@ -155,3 +155,5 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
