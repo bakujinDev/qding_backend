@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, InitUserName
 
 
 @admin.register(User)
@@ -56,4 +56,12 @@ class CustomUserAdmin(UserAdmin):
                 "classes": ("collapse",),
             },
         ),
+    )
+
+
+@admin.register(InitUserName)
+class InitUserNameAdmin(admin.ModelAdmin):
+    list_display = (
+        "kind",
+        "value",
     )

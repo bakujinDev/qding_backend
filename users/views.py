@@ -5,37 +5,52 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticated
-from .models import User
-from .serializers import PrivateUserSerializer
+from .models import User, InitUserName
+from .serializers import PrivateUserSerializer, JoinUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMessage
 
 
-class User(APIView):
+class Users(APIView):
     def post(self, request):
+        username = request.data.get("username")
         password = request.data.get("password")
 
-        if not password:
+        if not username or not password:
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = PrivateUserSerializer(data=request.data)
-
-        if serializer.is_valid():
-            print("able")
-            # user = serializer.save()
-            # user.set_password(password)
-            # user.save()
-            # serializer = PrivateUserSerializer(user)
-            # return Response(serializer.data)
-
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+        header = (
+            InitUserName.objects.filter(
+                kind=InitUserName.NameKindChoices.HEADER,
             )
+            .order_by(("?"))[0]
+            .value
+        )
+
+        footer = (
+            InitUserName.objects.filter(
+                kind=InitUserName.NameKindChoices.FOOTER,
+            )
+            .order_by(("?"))[0]
+            .value
+        )
+
+        name = f"{header} {footer}"
+
+        user = User.objects.create(
+            username=username,
+            email=username,
+            name=name,
+            is_active=False,
+        )
+
+        user.set_password(password)
+        user.save()
+        serializer = PrivateUserSerializer(user)
+        return Response(serializer.data)
 
 
 class Me(APIView):

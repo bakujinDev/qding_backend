@@ -10,11 +10,19 @@ class PrivateUserSerializer(ModelSerializer):
             "password",
             "is_superuser",
             "is_staff",
-            "is_active",
             "first_name",
             "last_name",
             "groups",
             "user_permissions",
             "date_joined",
             "last_login",
+        )
+
+
+class JoinUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "name",
         )
