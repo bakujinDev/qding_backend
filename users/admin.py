@@ -31,7 +31,7 @@ class CustomUserAdmin(UserAdmin):
                     "username",
                     "password",
                     "name",
-                    "email",
+                    "email_authentication",
                 ),
                 "classes": ("wide",),
             },

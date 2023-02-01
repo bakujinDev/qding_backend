@@ -1,4 +1,5 @@
 import requests
+import random
 from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from .models import User, InitUserName
 from .serializers import PrivateUserSerializer, JoinUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMessage
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class Users(APIView):
@@ -38,25 +40,33 @@ class Users(APIView):
             .value
         )
 
-        name = f"{header} {footer}"
+        name = f"{header} {footer} {InitUserName.objects.count()}"
 
         user = User.objects.create(
             username=username,
             email=username,
             name=name,
-            is_active=False,
         )
 
         user.set_password(password)
         user.save()
-        serializer = PrivateUserSerializer(user)
-        return Response(serializer.data)
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class Me(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        print("hi")
         user = request.user
         serializer = PrivateUserSerializer(user)
         return Response(serializer.data)

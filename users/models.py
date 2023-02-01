@@ -11,11 +11,19 @@ class User(AbstractUser):
         max_length=150,
         editable=False,
     )
+    email = models.CharField(
+        max_length=30,
+        editable=False,
+    )
     name = models.CharField(
         max_length=30,
+        unique=True,
     )
     avatar = models.URLField(
         blank=True,
+    )
+    email_authentication = models.BooleanField(
+        default=False, help_text="authentication by email"
     )
 
 
