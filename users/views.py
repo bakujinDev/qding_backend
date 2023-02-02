@@ -1,6 +1,9 @@
+import os
+import jwt
 import requests
 import random
 from django.conf import settings
+from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,7 +69,6 @@ class Me(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        print("hi")
         user = request.user
         serializer = PrivateUserSerializer(user)
         return Response(serializer.data)
@@ -96,13 +98,39 @@ class Logout(APIView):
 
 
 class Email_Auth(APIView):
+    def get(self, request):
+        user = request.user
+
+        if user.email_authentication:
+            return Response(status=200)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
-        email_address = request.data.get("email_address")
+        user = request.user
+
+        payload = {
+            "email_address": user.username,
+        }
+        site_address = "http://localhost:3000/"
+        token = jwt.encode(payload, settings.SECRET_KEY)
+
+        print(f"{site_address}{token}")
+
+        emailContent = render_to_string(
+            "email.html",
+            {
+                "email": user.username,
+                "url": os.path.join(site_address, "email_auth", token),
+            },
+        )
 
         email = EmailMessage(
-            "Title",  # 이메일 제목
-            "Content",  # 내용
-            to=[email_address],  # 받는 이메일
+            "[Qding] 회원 인증 메일입니다.",  # 이메일 제목
+            emailContent,
+            to=[user.username],  # 받는 이메일
         )
+        email.content_subtype = "html"
         email.send()
+
         return Response(status=status.HTTP_200_OK)
