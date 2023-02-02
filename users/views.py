@@ -126,11 +126,27 @@ class Email_Auth(APIView):
         )
 
         email = EmailMessage(
-            "[Qding] 회원 인증 메일입니다.",  # 이메일 제목
+            "[Qding] 회원 인증 메일입니다.",
             emailContent,
-            to=[user.username],  # 받는 이메일
+            to=[user.username],
         )
         email.content_subtype = "html"
         email.send()
+
+        return Response(status=status.HTTP_200_OK)
+
+    def put(self, request):
+        token = request.data.get("token")
+
+        decoded = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms="HS256",
+        )
+        email_address = decoded.get(("email_address"))
+
+        user = User.objects.get(username="dddd")
+        user.email_authentication = True
+        user.save()
 
         return Response(status=status.HTTP_200_OK)
