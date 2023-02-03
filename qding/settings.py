@@ -163,6 +163,8 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# email setting
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -170,3 +172,8 @@ EMAIL_HOST_USER = "qding.office@gmail.com"
 EMAIL_HOST_PASSWORD = env("GOOGLE_APP_PW")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# social setting
+
+GITHUB_ID = "95bab3171f91c36f06cc"
+GITHUB_SECRET = env("GITHUB_SECRET")

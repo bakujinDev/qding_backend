@@ -16,6 +16,26 @@ from django.core.mail import EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+def getRandomUserNickname():
+    header = (
+        InitUserName.objects.filter(
+            kind=InitUserName.NameKindChoices.HEADER,
+        )
+        .order_by(("?"))[0]
+        .value
+    )
+
+    footer = (
+        InitUserName.objects.filter(
+            kind=InitUserName.NameKindChoices.FOOTER,
+        )
+        .order_by(("?"))[0]
+        .value
+    )
+
+    return f"{header} {footer} {InitUserName.objects.count()}"
+
+
 class Users(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -27,28 +47,10 @@ class Users(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        header = (
-            InitUserName.objects.filter(
-                kind=InitUserName.NameKindChoices.HEADER,
-            )
-            .order_by(("?"))[0]
-            .value
-        )
-
-        footer = (
-            InitUserName.objects.filter(
-                kind=InitUserName.NameKindChoices.FOOTER,
-            )
-            .order_by(("?"))[0]
-            .value
-        )
-
-        name = f"{header} {footer} {InitUserName.objects.count()}"
-
         user = User.objects.create(
             username=username,
             email=username,
-            name=name,
+            name=getRandomUserNickname(),
         )
 
         user.set_password(password)
@@ -63,6 +65,73 @@ class Users(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class GithubLogIn(APIView):
+    def post(self, request):
+        try:
+            code = request.data.get("code")
+            access_token = requests.post(
+                f"https://github.com/login/oauth/access_token?code={code}&client_id={settings.GITHUB_ID}&client_secret={settings.GITHUB_SECRET}",
+                headers={
+                    "Accept": "application/json",
+                },
+            )
+            access_token = access_token.json().get("access_token")
+
+            user_data = requests.get(
+                "https://api.github.com/user",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
+            )
+            user_data = user_data.json()
+
+            user_emails = requests.get(
+                "https://api.github.com/user/emails",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
+            )
+            user_emails = user_emails.json()
+
+            try:
+
+                user = User.objects.get(email=user_emails[0]["email"])
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            except User.DoesNotExist:
+
+                user = User.objects.create(
+                    username=user_emails[0]["email"],
+                    email=user_emails[0]["email"],
+                    name=user_data.get("name") or getRandomUserNickname(),
+                    avatar=user_data.get("avatar_url"),
+                )
+
+                user.set_unusable_password()
+                user.save()
+
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class Me(APIView):
@@ -121,7 +190,9 @@ class Email_Auth(APIView):
             "email.html",
             {
                 "email": user.email,
-                "url": os.path.join(site_address, "email_auth", token),
+                "url": os.path.join(
+                    site_address, "auth", "email_authentication", token
+                ),
             },
         )
 
