@@ -12,8 +12,7 @@ class User(AbstractUser):
         editable=False,
     )
     email = models.CharField(
-        max_length=30,
-        editable=False,
+        max_length=150,
     )
     name = models.CharField(
         max_length=30,

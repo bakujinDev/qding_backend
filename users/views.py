@@ -110,7 +110,7 @@ class Email_Auth(APIView):
         user = request.user
 
         payload = {
-            "email_address": user.username,
+            "email_address": user.email,
         }
         site_address = "http://localhost:3000/"
         token = jwt.encode(payload, settings.SECRET_KEY)
@@ -120,7 +120,7 @@ class Email_Auth(APIView):
         emailContent = render_to_string(
             "email.html",
             {
-                "email": user.username,
+                "email": user.email,
                 "url": os.path.join(site_address, "email_auth", token),
             },
         )
@@ -128,7 +128,7 @@ class Email_Auth(APIView):
         email = EmailMessage(
             "[Qding] 회원 인증 메일입니다.",
             emailContent,
-            to=[user.username],
+            to=[user.email],
         )
         email.content_subtype = "html"
         email.send()
@@ -145,8 +145,12 @@ class Email_Auth(APIView):
         )
         email_address = decoded.get(("email_address"))
 
-        user = User.objects.get(username="dddd")
-        user.email_authentication = True
-        user.save()
+        try:
+            user = User.objects.get(username=email_address)
+            user.email_authentication = True
+            user.save()
+
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         return Response(status=status.HTTP_200_OK)
