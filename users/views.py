@@ -134,6 +134,71 @@ class GithubLogIn(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class KakaoLogIn(APIView):
+    def post(self, request):
+        try:
+            print("hiiiiiii")
+            code = request.data.get("code")
+            access_token = requests.post(
+                f"https://kauth.kakao.com/oauth/token",
+                headers={
+                    "Content-type": "application/x-www-form-urlencoded;charset=utf-8"
+                },
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": settings.KAKAO_ID,
+                    "redirect_uri": settings.KAKAO_REDIRECT_URL,
+                    "code": code,
+                },
+            )
+            print(access_token)
+            access_token = access_token.json().get("access_token")
+
+            user_data = requests.get(
+                f"https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+                },
+            )
+            print(user_data)
+            user_data = user_data.json()
+            kakao_acount = user_data.get("kakao_account")
+            profile = kakao_acount.get("profile")
+
+            try:
+                user = User.objects.get(email=kakao_acount.get("email"))
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            except User.DoesNotExist:
+
+                user = User.objects.create(
+                    username=kakao_acount.get("email"),
+                    email=kakao_acount.get("email"),
+                    name=profile.get("nickname") or getRandomUserNickname(),
+                    avatar=profile.get("profile_image_url"),
+                )
+                user.set_unusable_password()
+                user.save()
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    },
+                    status=status.HTTP_200_OK,
+                )
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class Me(APIView):
     permission_classes = [IsAuthenticated]
 
