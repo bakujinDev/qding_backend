@@ -7,6 +7,7 @@ class PrivateUserSerializer(ModelSerializer):
         model = User
         exclude = (
             "id",
+            "is_active",
             "password",
             "is_superuser",
             "is_staff",

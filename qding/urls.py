@@ -20,10 +20,12 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from users.urls import urlpatterns as usersUrls
+from qnas.urls import urlpatterns as qnasUrls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/users/", include(usersUrls)),
+    path("api/v1/qnas/", include(qnasUrls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

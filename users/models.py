@@ -25,6 +25,9 @@ class User(AbstractUser):
         default=False, help_text="authentication by email"
     )
 
+    def __str__(self):
+        return self.name
+
 
 class InitUserName(models.Model):
     """Init UserName Definition"""

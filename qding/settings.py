@@ -45,11 +45,12 @@ THIRD_PARTY_APPS = [
 ]
 
 CUSTOM_APPS = [
-    "answers.apps.AnswersConfig",
+    # "answers.apps.AnswersConfig",
     "common.apps.CommonConfig",
     "comments.apps.CommentsConfig",
     "users.apps.UsersConfig",
-    "questions.apps.QuestionsConfig",
+    # "questions.apps.QuestionsConfig",
+    "qnas.apps.QnasConfig",
 ]
 
 SYSTEM_APPS = [
