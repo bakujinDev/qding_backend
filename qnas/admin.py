@@ -37,3 +37,5 @@ class TagAdmin(admin.ModelAdmin):
         "creator",
         "created_at",
     )
+
+

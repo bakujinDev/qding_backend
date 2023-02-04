@@ -31,11 +31,11 @@ class Question(TimeModel, ViewsModel, VotesModel):
     )
     tag = models.ManyToManyField("qnas.Tag")
 
-    def answers_count(self):
-        return self.answers.count()
-
     def __str__(self) -> str:
         return self.title
+
+    def answers_count(self):
+        return self.answers.count()
 
 
 class Answer(TimeModel, ViewsModel, VotesModel):
