@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Question, Answer
+from .models import Question, Answer, Tag
 
 
 @admin.register(Question)
@@ -8,7 +8,7 @@ class QuestionAdmin(admin.ModelAdmin):
         "creator",
         "title",
         "votes",
-        "view_count",
+        "views",
         "updated_at",
     )
 
@@ -27,3 +27,13 @@ class AnswerAdmin(admin.ModelAdmin):
     )
 
     date_hierarchy = "updated_at"
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "description",
+        "creator",
+        "created_at",
+    )

@@ -21,6 +21,7 @@ class ViewsModel(models.Model):
     views = models.PositiveIntegerField(
         default=0,
         editable=False,
+        help_text="조회수 / 쿠키 기반 중복 방지",
     )
 
     class Meta:

@@ -20,7 +20,7 @@ class Question(TimeModel, ViewsModel, VotesModel):
     title = models.CharField(
         max_length=50,
     )
-    content = models.TextField()
+    content = models.TextField(max_length=3000)
     select_answer = models.OneToOneField(
         "qnas.Answer",
         on_delete=models.SET_NULL,
@@ -29,8 +29,7 @@ class Question(TimeModel, ViewsModel, VotesModel):
         null=True,
         blank=True,
     )
-    view_count = models.PositiveIntegerField(default=0, help_text="조회수 / 쿠키 기반 중복 방지")
-    # tag= models.ManyToManyField(to)
+    tag = models.ManyToManyField("qnas.Tag")
 
     def answers_count(self):
         return self.answers.count()
@@ -53,3 +52,17 @@ class Answer(TimeModel, ViewsModel, VotesModel):
 
     def __str__(self) -> str:
         return f"{self.creator} answered {self.question}"
+
+
+class Tag(TimeModel):
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="create_tags",
+        null=True,
+    )
+    name = models.CharField(max_length=20)
+    description = models.CharField(max_length=150)
+
+    def __str__(self) -> str:
+        return self.name
