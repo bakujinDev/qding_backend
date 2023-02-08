@@ -19,11 +19,13 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from medias.urls import urlpatterns as mediasUrls
 from users.urls import urlpatterns as usersUrls
 from qnas.urls import urlpatterns as qnasUrls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/v1/medias/", include(mediasUrls)),
     path("api/v1/users/", include(usersUrls)),
     path("api/v1/qnas/", include(qnasUrls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

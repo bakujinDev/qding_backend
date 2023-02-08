@@ -41,15 +41,13 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "rest_framework.authtoken",
-    #     "strawberry.django",
 ]
 
 CUSTOM_APPS = [
-    # "answers.apps.AnswersConfig",
     "common.apps.CommonConfig",
     "comments.apps.CommentsConfig",
+    "medias.apps.MediasConfig",
     "users.apps.UsersConfig",
-    # "questions.apps.QuestionsConfig",
     "qnas.apps.QnasConfig",
 ]
 
@@ -181,3 +179,8 @@ GITHUB_SECRET = env("GITHUB_SECRET")
 
 KAKAO_ID = "18dba6cfddc30770776200dda585923d"
 KAKAO_REDIRECT_URL = "http://127.0.0.1:3000/auth/kakao"
+
+# upload setting
+
+CLOUD_FLARE_TOKEN = env("CLOUD_FLARE_TOKEN")
+CLOUD_FLARE_ID = env("CLOUD_FLARE_ID")
