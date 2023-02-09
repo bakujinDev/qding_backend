@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path("questions", views.Questions.as_view()),
+    path("tags", views.Tags.as_view()),
 ]
