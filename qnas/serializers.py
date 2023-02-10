@@ -14,15 +14,12 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class QuestionListSerializer(serializers.ModelSerializer):
-    creator = commonSerializers.MinimumUserSerializer()
-    editor = commonSerializers.MinimumUserSerializer()
     tag = TagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Question
         fields = (
-            "creator",
-            "editor",
+            "pk",
             "title",
             "content",
             "select_answer",
