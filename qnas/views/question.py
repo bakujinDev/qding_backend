@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from qnas.models import Question, Tag
-from qnas.serializers import QuestionListSerializer, QuestionPostSerializer
+from qnas.serializers import QuestionListSerializer, AskSerializer, QuestionSerializer
 
 
 def add_tags(tags, question):
@@ -26,8 +26,7 @@ class Questions(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = QuestionPostSerializer(data=request.data)
-        print(request.user)
+        serializer = AskSerializer(data=request.data)
 
         if serializer.is_valid():
             try:
@@ -38,7 +37,7 @@ class Questions(APIView):
 
                     add_tags(tags, question)
 
-                    serializer = QuestionPostSerializer(question)
+                    serializer = AskSerializer(question)
 
                     return Response(serializer.data)
 
@@ -50,3 +49,13 @@ class Questions(APIView):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class QuestionPost(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, id):
+        question = Question.objects.get(pk=id)
+        serializer = QuestionSerializer(question)
+
+        return Response(serializer.data)

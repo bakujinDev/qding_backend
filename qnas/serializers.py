@@ -34,7 +34,7 @@ class QuestionListSerializer(serializers.ModelSerializer):
         self.answers_count()
 
 
-class QuestionPostSerializer(serializers.ModelSerializer):
+class AskSerializer(serializers.ModelSerializer):
     creator = commonSerializers.MinimumUserSerializer(read_only=True)
     tag = TagSerializer(read_only=True, many=True)
 
@@ -45,4 +45,24 @@ class QuestionPostSerializer(serializers.ModelSerializer):
             "title",
             "content",
             "tag",
+        )
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.MinimumUserSerializer()
+    editor = commonSerializers.MinimumUserSerializer()
+    tag = TagSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Question
+        fields = (
+            "creator",
+            "editor",
+            "title",
+            "content",
+            "select_answer",
+            "views",
+            "updated_at",
+            "tag",
+            "votes",
         )
