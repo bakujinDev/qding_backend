@@ -4,7 +4,7 @@ from common import serializers as commonSerializers
 
 
 class PhotoSerializer(serializers.ModelSerializer):
-    creator = commonSerializers.MinimumUserSerializer()
+    creator = commonSerializers.ProfileUserSerializer()
 
     class Meta:
         model = Photo

@@ -5,7 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from qnas.models import Question, Tag
-from qnas.serializers import QuestionListSerializer, AskSerializer, QuestionSerializer
+from qnas.serializers import (
+    QuestionListSerializer,
+    AskSerializer,
+    QuestionSerializer,
+    QuestionCommentSerializer,
+)
 
 
 def add_tags(tags, question):
@@ -59,3 +64,35 @@ class QuestionPost(APIView):
         serializer = QuestionSerializer(question)
 
         return Response(serializer.data)
+
+
+class QuestionComment(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, question_id):
+        comments = Question.objects.get(pk=question_id).select_related(
+            "question_comments"
+        )
+
+        serializer = QuestionCommentSerializer(
+            data=comments,
+            many=True,
+        )
+        return Response(serializer.data)
+
+    def post(self, request, question_id):
+        question = Question.objects.get(pk=question_id)
+        serializer = QuestionCommentSerializer(
+            data=request.data,
+        )
+
+        if serializer.is_valid():
+            comment = serializer.save(
+                creator=request.user,
+                target=question,
+            )
+            serializer = QuestionCommentSerializer(comment)
+            return Response(serializer.data)
+
+        else:
+            return Response(serializer.errors)

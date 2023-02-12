@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question, Answer, Tag
+from .models import Question, QuestionComment, Answer, Tag
 from common import serializers as commonSerializers
 
 
@@ -35,7 +35,7 @@ class QuestionListSerializer(serializers.ModelSerializer):
 
 
 class AskSerializer(serializers.ModelSerializer):
-    creator = commonSerializers.MinimumUserSerializer(read_only=True)
+    creator = commonSerializers.ProfileUserSerializer(read_only=True)
     tag = TagSerializer(read_only=True, many=True)
 
     class Meta:
@@ -48,10 +48,26 @@ class AskSerializer(serializers.ModelSerializer):
         )
 
 
+class CommentByQuestionSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.NameUserSerializer(read_only=True)
+
+    class Meta:
+        model = QuestionComment
+        fields = (
+            "creator",
+            "content",
+            "updated_at",
+        )
+
+
 class QuestionSerializer(serializers.ModelSerializer):
-    creator = commonSerializers.MinimumUserSerializer()
-    editor = commonSerializers.MinimumUserSerializer()
+    creator = commonSerializers.ProfileUserSerializer(read_only=True)
+    editor = commonSerializers.ProfileUserSerializer(read_only=True)
     tag = TagSerializer(read_only=True, many=True)
+    question_comments = CommentByQuestionSerializer(
+        read_only=True,
+        many=True,
+    )
 
     class Meta:
         model = Question
@@ -65,4 +81,18 @@ class QuestionSerializer(serializers.ModelSerializer):
             "updated_at",
             "tag",
             "votes",
+            "question_comments",
+        )
+
+
+class QuestionCommentSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.NameUserSerializer(read_only=True)
+
+    class Meta:
+        model = QuestionComment
+        fields = (
+            "creator",
+            "target",
+            "content",
+            "updated_at",
         )

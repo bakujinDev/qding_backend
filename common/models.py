@@ -38,3 +38,10 @@ class VotesModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class CommentModel(TimeModel):
+    content = models.TextField(max_length=200)
+
+    class Meta:
+        abstract = True

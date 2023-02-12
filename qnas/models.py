@@ -1,5 +1,5 @@
 from django.db import models
-from common.models import TimeModel, ViewsModel, VotesModel
+from common.models import TimeModel, ViewsModel, VotesModel, CommentModel
 from users.models import User
 
 
@@ -38,6 +38,24 @@ class Question(TimeModel, ViewsModel, VotesModel):
         return self.answers.count()
 
 
+class QuestionComment(CommentModel):
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="question_comments",
+        null=True,
+    )
+    target = models.ForeignKey(
+        Question,
+        on_delete=models.SET_NULL,
+        related_name="question_comments",
+        null=True,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.creator} at {self.target}"
+
+
 class Answer(TimeModel, ViewsModel, VotesModel):
     question = models.ForeignKey(
         Question, on_delete=models.SET_NULL, null=True, related_name="answers"
@@ -52,6 +70,24 @@ class Answer(TimeModel, ViewsModel, VotesModel):
 
     def __str__(self) -> str:
         return f"{self.creator} answered {self.question}"
+
+
+class AnswerComment(CommentModel):
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="answer_comments",
+        null=True,
+    )
+    target = models.ForeignKey(
+        Question,
+        on_delete=models.SET_NULL,
+        related_name="answer_comments",
+        null=True,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.creator} at {self.target}"
 
 
 class Tag(TimeModel):
