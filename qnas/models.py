@@ -57,14 +57,14 @@ class QuestionComment(CommentModel):
 
 
 class Answer(TimeModel, ViewsModel, VotesModel):
-    question = models.ForeignKey(
-        Question, on_delete=models.SET_NULL, null=True, related_name="answers"
-    )
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         related_name="answers",
         null=True,
+    )
+    question = models.ForeignKey(
+        Question, on_delete=models.SET_NULL, null=True, related_name="answers"
     )
     content = models.TextField(max_length=3000)
 

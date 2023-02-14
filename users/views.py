@@ -137,7 +137,6 @@ class GithubLogIn(APIView):
 class KakaoLogIn(APIView):
     def post(self, request):
         try:
-            print("hiiiiiii")
             code = request.data.get("code")
             access_token = requests.post(
                 f"https://kauth.kakao.com/oauth/token",
@@ -151,7 +150,6 @@ class KakaoLogIn(APIView):
                     "code": code,
                 },
             )
-            print(access_token)
             access_token = access_token.json().get("access_token")
 
             user_data = requests.get(
@@ -161,7 +159,6 @@ class KakaoLogIn(APIView):
                     "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
                 },
             )
-            print(user_data)
             user_data = user_data.json()
             kakao_acount = user_data.get("kakao_account")
             profile = kakao_acount.get("profile")
@@ -248,8 +245,6 @@ class Email_Auth(APIView):
         }
         site_address = "http://localhost:3000/"
         token = jwt.encode(payload, settings.SECRET_KEY)
-
-        print(f"{site_address}{token}")
 
         emailContent = render_to_string(
             "email.html",

@@ -59,8 +59,8 @@ class Questions(APIView):
 class QuestionPost(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get(self, request, id):
-        question = Question.objects.get(pk=id)
+    def get(self, request, question_id):
+        question = Question.objects.get(pk=question_id)
         serializer = QuestionSerializer(question)
 
         return Response(serializer.data)

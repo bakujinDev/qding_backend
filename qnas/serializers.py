@@ -48,6 +48,19 @@ class AskSerializer(serializers.ModelSerializer):
         )
 
 
+class AnswerSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.ProfileUserSerializer(read_only=True)
+
+    class Meta:
+        model = Answer
+        fields = (
+            "creator",
+            "question",
+            "content",
+            "updated_at",
+        )
+
+
 class CommentByQuestionSerializer(serializers.ModelSerializer):
     creator = commonSerializers.NameUserSerializer(read_only=True)
 
@@ -68,6 +81,10 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True,
     )
+    answers = AnswerSerializer(
+        read_only=True,
+        many=True,
+    )
 
     class Meta:
         model = Question
@@ -82,6 +99,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "tag",
             "votes",
             "question_comments",
+            "answers",
         )
 
 
