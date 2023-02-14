@@ -80,7 +80,7 @@ class AnswerComment(CommentModel):
         null=True,
     )
     target = models.ForeignKey(
-        Question,
+        Answer,
         on_delete=models.SET_NULL,
         related_name="answer_comments",
         null=True,

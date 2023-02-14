@@ -5,18 +5,11 @@ from .models import User
 class PrivateUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        exclude = (
-            "id",
-            "is_active",
-            "password",
-            "is_superuser",
-            "is_staff",
-            "first_name",
-            "last_name",
-            "groups",
-            "user_permissions",
-            "date_joined",
-            "last_login",
+        fields = (
+            "pk",
+            "username",
+            "name",
+            "avatar",
         )
 
 
