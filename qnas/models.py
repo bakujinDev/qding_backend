@@ -48,8 +48,8 @@ class QuestionComment(CommentModel):
     target = models.ForeignKey(
         Question,
         on_delete=models.SET_NULL,
-        related_name="question_comments",
         null=True,
+        related_name="question_comments",
     )
 
     def __str__(self) -> str:
@@ -82,8 +82,8 @@ class AnswerComment(CommentModel):
     target = models.ForeignKey(
         Answer,
         on_delete=models.SET_NULL,
-        related_name="answer_comments",
         null=True,
+        related_name="answer_comments",
     )
 
     def __str__(self) -> str:

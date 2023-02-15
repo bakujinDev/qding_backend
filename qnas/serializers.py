@@ -40,8 +40,10 @@ class CommentByAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerComment
         fields = (
+            "pk",
             "creator",
             "content",
+            "created_at",
             "updated_at",
         )
 
@@ -98,8 +100,10 @@ class CommentByQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionComment
         fields = (
+            "pk",
             "creator",
             "content",
+            "created_at",
             "updated_at",
         )
 

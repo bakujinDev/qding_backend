@@ -1,16 +1,18 @@
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from qnas.models import Question, Tag
+from qnas.models import Question, QuestionComment, Tag
 from qnas.serializers import (
     QuestionListSerializer,
     AskSerializer,
     QuestionSerializer,
     QuestionCommentSerializer,
 )
+from common.views import check_owner
 
 
 def add_tags(tags, question):
@@ -56,7 +58,7 @@ class Questions(APIView):
             )
 
 
-class QuestionPost(APIView):
+class QuestionDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, question_id):
@@ -66,19 +68,8 @@ class QuestionPost(APIView):
         return Response(serializer.data)
 
 
-class QuestionComment(APIView):
+class QuestionComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get(self, request, question_id):
-        comments = Question.objects.get(pk=question_id).select_related(
-            "question_comments"
-        )
-
-        serializer = QuestionCommentSerializer(
-            data=comments,
-            many=True,
-        )
-        return Response(serializer.data)
 
     def post(self, request, question_id):
         question = Question.objects.get(pk=question_id)
@@ -96,3 +87,32 @@ class QuestionComment(APIView):
 
         else:
             return Response(serializer.errors)
+
+
+class QuestionCommentDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def put(self, request, comment_id):
+        comment = QuestionComment.objects.get(pk=comment_id)
+        now = timezone.localtime()
+        limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
+
+        if limit >= now:
+            check_owner(request, comment.creator)
+
+            serializer = QuestionCommentSerializer(
+                comment,
+                data=request.data,
+                partial=True,
+            )
+
+            if serializer.is_valid():
+                updated_comment = serializer.save()
+                serializer = QuestionCommentSerializer(updated_comment)
+                return Response(serializer.data)
+
+            else:
+                return Response(serializer.errors)
+
+        else:
+            raise ParseError("수정 가능한 시간이 지났습니다")
