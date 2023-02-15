@@ -116,3 +116,18 @@ class QuestionCommentDetail(APIView):
 
         else:
             raise ParseError("수정 가능한 시간이 지났습니다")
+
+    def delete(swlf, request, comment_id):
+        comment = QuestionComment.objects.get(pk=comment_id)
+
+        now = timezone.localtime()
+        limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
+
+        if limit >= now:
+            check_owner(request, comment.creator)
+            comment.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            raise ParseError("수정 가능한 시간이 지났습니다")
