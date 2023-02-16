@@ -63,6 +63,13 @@ class QuestionDetail(APIView):
 
     def get(self, request, question_id):
         question = Question.objects.get(pk=question_id)
+
+        cookie = request.query_params.get("cookie")
+        if not cookie:
+            print("hi")
+            question.views = question.views + 1
+            question.save(update_fields=["views"])
+            
         serializer = QuestionSerializer(question)
 
         return Response(serializer.data)
