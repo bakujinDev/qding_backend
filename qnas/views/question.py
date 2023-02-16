@@ -69,16 +69,19 @@ class QuestionDetail(APIView):
             question.views = question.views + 1
             question.save(update_fields=["views"])
 
-        serializer = QuestionSerializer(question)
+        serializer = QuestionSerializer(
+            question,
+            context={"request": request},
+        )
 
         return Response(serializer.data)
 
 
 class QuestionVote(APIView):
-    permission_classes=[IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     # def post():
-        
+
 
 class QuestionComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]

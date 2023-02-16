@@ -1,9 +1,9 @@
 from django.db import models
-from common.models import TimeModel, ViewsModel, VotesModel, CommentModel
+from common.models import TimeModel, ViewsModel, VotesModel, CommentsModel
 from users.models import User
 
 
-class Question(TimeModel, ViewsModel, VotesModel):
+class Question(TimeModel, ViewsModel):
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -37,8 +37,11 @@ class Question(TimeModel, ViewsModel, VotesModel):
     def answers_count(self):
         return self.answers.count()
 
+    def votes(self):
+        return self.question_votes.count()
 
-class QuestionComment(CommentModel):
+
+class QuestionComment(CommentsModel):
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -55,3 +58,20 @@ class QuestionComment(CommentModel):
     def __str__(self) -> str:
         return f"{self.creator} at {self.target}"
 
+
+class QuestionVote(VotesModel):
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="question_votes",
+        null=True,
+    )
+    target = models.ForeignKey(
+        Question,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="question_votes",
+    )
+
+    def __str__(self) -> str:
+        return f"{self.votes} to {self.target}"

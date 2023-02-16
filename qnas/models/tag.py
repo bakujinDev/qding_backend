@@ -1,7 +1,6 @@
 from django.db import models
-from common.models import TimeModel, ViewsModel, VotesModel, CommentModel
+from common.models import TimeModel
 from users.models import User
-
 
 
 class Tag(TimeModel):

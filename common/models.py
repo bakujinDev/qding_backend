@@ -28,20 +28,23 @@ class ViewsModel(models.Model):
         abstract = True
 
 
-class VotesModel(models.Model):
+class VotesModel(TimeModel):
     """Votes Model Definition"""
 
-    votes = models.IntegerField(
-        default=0,
-        editable=False,
+    class VoteKindChoices(models.TextChoices):
+        Plus = "plus", "Plus"
+        Minus = "minus", "Minus"
+
+    votes = models.CharField(
+        max_length=6,
+        choices=VoteKindChoices.choices,
     )
-    
 
     class Meta:
         abstract = True
 
 
-class CommentModel(TimeModel):
+class CommentsModel(TimeModel):
     content = models.TextField(max_length=200)
 
     class Meta:

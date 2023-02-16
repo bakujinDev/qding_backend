@@ -1,10 +1,10 @@
 from django.db import models
 from .question import Question
-from common.models import TimeModel, ViewsModel, VotesModel, CommentModel
+from common.models import TimeModel, ViewsModel, VotesModel, CommentsModel
 from users.models import User
 
 
-class Answer(TimeModel, ViewsModel, VotesModel):
+class Answer(TimeModel, ViewsModel):
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -20,7 +20,7 @@ class Answer(TimeModel, ViewsModel, VotesModel):
         return f"{self.creator} answered {self.question}"
 
 
-class AnswerComment(CommentModel):
+class AnswerComment(CommentsModel):
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

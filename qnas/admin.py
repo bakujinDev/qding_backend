@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Question, QuestionComment, Answer, AnswerComment, Tag
+from . import models
 
 
-@admin.register(Question)
+@admin.register(models.Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = (
         "creator",
@@ -17,19 +17,19 @@ class QuestionAdmin(admin.ModelAdmin):
     date_hierarchy = "updated_at"
 
 
-@admin.register(Answer)
+@admin.register(models.Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = (
         "creator",
         "question",
-        "votes",
+        # "votes",
         "updated_at",
     )
 
     date_hierarchy = "updated_at"
 
 
-@admin.register(Tag)
+@admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = (
         "name",
@@ -39,7 +39,7 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(QuestionComment, AnswerComment)
+@admin.register(models.QuestionComment, models.AnswerComment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
         "creator",
@@ -51,3 +51,12 @@ class CommentAdmin(admin.ModelAdmin):
     list_display_links = ("content",)
 
     date_hierarchy = "updated_at"
+
+
+@admin.register(models.QuestionVote)
+class VotesAdmin(admin.ModelAdmin):
+    list_display = (
+        "creator",
+        "target",
+        "created_at",
+    )
