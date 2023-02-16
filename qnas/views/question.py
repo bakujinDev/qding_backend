@@ -66,14 +66,19 @@ class QuestionDetail(APIView):
 
         cookie = request.query_params.get("cookie")
         if not cookie:
-            print("hi")
             question.views = question.views + 1
             question.save(update_fields=["views"])
-            
+
         serializer = QuestionSerializer(question)
 
         return Response(serializer.data)
 
+
+class QuestionVote(APIView):
+    permission_classes=[IsAuthenticatedOrReadOnly]
+
+    # def post():
+        
 
 class QuestionComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
