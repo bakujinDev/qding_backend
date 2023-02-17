@@ -73,8 +73,8 @@ class QuestionDetail(APIView):
     def get(self, request, question_id):
         question = models.Question.objects.get(pk=question_id)
 
-        cookie = request.query_params.get("cookie")
-        if not cookie:
+        viewLocalItem = request.query_params.get("viewLocalItem")
+        if not viewLocalItem:
             question.views = question.views + 1
             question.save(update_fields=["views"])
 
