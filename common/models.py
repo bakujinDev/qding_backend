@@ -39,6 +39,7 @@ class VotesModel(TimeModel):
         max_length=6,
         choices=VoteKindChoices.choices,
     )
+    target_updated = models.DateTimeField(null=True)
 
     class Meta:
         abstract = True

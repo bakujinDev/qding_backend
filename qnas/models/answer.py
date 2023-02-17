@@ -12,7 +12,10 @@ class Answer(TimeModel, ViewsModel):
         null=True,
     )
     question = models.ForeignKey(
-        Question, on_delete=models.SET_NULL, null=True, related_name="answers"
+        Question,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="answers",
     )
     content = models.TextField(max_length=3000)
 

@@ -30,7 +30,7 @@ class AnswerListSerializer(serializers.ModelSerializer):
         fields = (
             "pk",
             "creator",
-            # "votes",
+            "votes",
             "content",
             "updated_at",
             "answer_comments",
@@ -44,6 +44,7 @@ class AskSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Question
         fields = (
+            "pk",
             "creator",
             "title",
             "content",

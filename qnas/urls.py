@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path("questions", views.Questions.as_view()),
     path("questions/<int:question_id>", views.QuestionDetail.as_view()),
-    path("questions/<int:question_id>/vote", views.QuestionDetail.as_view()),
+    path("questions/<int:question_id>/vote", views.QuestionVotes.as_view()),
     path("questions/<int:question_id>/comments", views.QuestionComments.as_view()),
     path("questions/<int:question_id>/answers", views.AnswerPost.as_view()),
     path("questions/comments/<int:comment_id>", views.QuestionCommentDetail.as_view()),

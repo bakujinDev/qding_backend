@@ -78,10 +78,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return None
 
-        return models.QuestionVote.objects.get(
-            creator=request.user,
-            target=model.pk,
-        ).votes
+        try:
+            return models.QuestionVote.objects.get(
+                creator=request.user,
+                target=model.pk,
+            ).votes
+        except:
+            return 0
 
 
 class QuestionCommentSerializer(serializers.ModelSerializer):

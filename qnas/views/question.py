@@ -1,23 +1,20 @@
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from qnas.models import Question, QuestionComment, Tag
-from qnas.serializers import (
-    QuestionListSerializer,
-    AskSerializer,
-    QuestionSerializer,
-    QuestionCommentSerializer,
-)
+from common.views import get_page
+from qnas import models, serializers
 from common.views import check_owner
 
 
 def add_tags(tags, question):
     for tag_name in tags:
-        tag = Tag.objects.get(name=tag_name)
+        tag = models.Tag.objects.get(name=tag_name)
         question.tag.add(tag)
 
 
@@ -25,15 +22,27 @@ class Questions(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
-        all_qeustions = Question.objects.all()
-        serializer = QuestionListSerializer(
-            all_qeustions,
+        page = get_page(request)
+        start = (page - 1) * settings.PAGE_SIZE
+        end = start + settings.PAGE_SIZE
+
+        total = models.Question.objects.all().count()
+
+        page_qeustions = models.Question.objects.all().order_by("-pk")[start:end]
+        serializer = serializers.QuestionListSerializer(
+            page_qeustions,
             many=True,
         )
-        return Response(serializer.data)
+
+        return Response(
+            {
+                "total": total,
+                "list": serializer.data,
+            }
+        )
 
     def post(self, request):
-        serializer = AskSerializer(data=request.data)
+        serializer = serializers.AskSerializer(data=request.data)
 
         if serializer.is_valid():
             try:
@@ -44,7 +53,7 @@ class Questions(APIView):
 
                     add_tags(tags, question)
 
-                    serializer = AskSerializer(question)
+                    serializer = serializers.AskSerializer(question)
 
                     return Response(serializer.data)
 
@@ -62,14 +71,14 @@ class QuestionDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, question_id):
-        question = Question.objects.get(pk=question_id)
+        question = models.Question.objects.get(pk=question_id)
 
         cookie = request.query_params.get("cookie")
         if not cookie:
             question.views = question.views + 1
             question.save(update_fields=["views"])
 
-        serializer = QuestionSerializer(
+        serializer = serializers.QuestionSerializer(
             question,
             context={"request": request},
         )
@@ -77,18 +86,23 @@ class QuestionDetail(APIView):
         return Response(serializer.data)
 
 
-class QuestionVote(APIView):
+class QuestionVotes(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    # def post():
+    def post(self, request, question_id):
+        question = models.Question.objects.get(pk=question_id)
+
+        vote = models.QuestionVote.objects.get(target=question, creator=request.user)
+        print(vote)
+        return Response({"hi": "hi"})
 
 
 class QuestionComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, question_id):
-        question = Question.objects.get(pk=question_id)
-        serializer = QuestionCommentSerializer(
+        question = models.Question.objects.get(pk=question_id)
+        serializer = serializers.QuestionCommentSerializer(
             data=request.data,
         )
 
@@ -97,7 +111,7 @@ class QuestionComments(APIView):
                 creator=request.user,
                 target=question,
             )
-            serializer = QuestionCommentSerializer(comment)
+            serializer = serializers.QuestionCommentSerializer(comment)
             return Response(serializer.data)
 
         else:
@@ -108,14 +122,14 @@ class QuestionCommentDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def put(self, request, comment_id):
-        comment = QuestionComment.objects.get(pk=comment_id)
+        comment = models.QuestionComment.objects.get(pk=comment_id)
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
 
         if limit >= now:
             check_owner(request, comment.creator)
 
-            serializer = QuestionCommentSerializer(
+            serializer = serializers.QuestionCommentSerializer(
                 comment,
                 data=request.data,
                 partial=True,
@@ -123,7 +137,7 @@ class QuestionCommentDetail(APIView):
 
             if serializer.is_valid():
                 updated_comment = serializer.save()
-                serializer = QuestionCommentSerializer(updated_comment)
+                serializer = serializers.QuestionCommentSerializer(updated_comment)
                 return Response(serializer.data)
 
             else:
@@ -133,7 +147,7 @@ class QuestionCommentDetail(APIView):
             raise ParseError("수정 가능한 시간이 지났습니다")
 
     def delete(swlf, request, comment_id):
-        comment = QuestionComment.objects.get(pk=comment_id)
+        comment = models.QuestionComment.objects.get(pk=comment_id)
 
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
