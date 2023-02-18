@@ -19,6 +19,5 @@ class Photo(TimeModel):
     category = models.CharField(
         max_length=15,
         choices=CategoryKindChoices.choices,
-        default='qna_answer',
         null=True,
     )

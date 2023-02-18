@@ -38,7 +38,7 @@ class Question(TimeModel, ViewsModel):
         return self.answers.count()
 
     def votes(self):
-      return self.question_votes.count()
+        return self.question_votes.count()
 
 
 class QuestionComment(CommentsModel):
