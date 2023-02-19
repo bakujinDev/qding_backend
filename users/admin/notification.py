@@ -1,9 +1,9 @@
 from django.contrib import admin
-from users.models.alarm import Alarm
+from users.models import *
 
 
-@admin.register(Alarm)
-class AlarmAdmin(admin.ModelAdmin):
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "content",

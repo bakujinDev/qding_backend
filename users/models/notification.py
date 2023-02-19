@@ -3,13 +3,13 @@ from .user import User
 from common.models import TimeModel
 
 
-class Alarm(TimeModel):
-    """Alarm Definition"""
+class Notification(TimeModel):
+    """Notification Definition"""
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="alarms",
+        related_name="notifications",
     )
     content = models.CharField(
         max_length=50,

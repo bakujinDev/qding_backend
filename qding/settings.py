@@ -161,6 +161,8 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+BASE_URL = "http://127.0.0.1:3000"
+
 # email setting
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

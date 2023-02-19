@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db import transaction
+from django.db import transaction, connection
 from django.utils import timezone
 from django.core.paginator import Paginator
 from rest_framework import status
@@ -10,6 +10,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from common.views import get_page
 from qnas import models, serializers
 from common.views import check_owner
+from users.models import Notification
+from users.serializers import NotificationSerializer
+from users.function import add_notifications
 
 
 def add_tags(tags, question):
@@ -101,17 +104,30 @@ class QuestionComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, question_id):
-        question = models.Question.objects.get(pk=question_id)
         serializer = serializers.QuestionCommentSerializer(
             data=request.data,
         )
 
         if serializer.is_valid():
+            question = models.Question.objects.prefetch_related("notification_user").get(
+                pk=question_id
+            )
+
+            
+
             comment = serializer.save(
                 creator=request.user,
                 target=question,
             )
             serializer = serializers.QuestionCommentSerializer(comment)
+
+            add_notifications(
+                question,
+                request.user,
+                content="새로운 댓글이 추가되었어요",
+                push_url=f"/qna/{question_id}",
+            )
+
             return Response(serializer.data)
 
         else:
@@ -147,7 +163,10 @@ class QuestionCommentDetail(APIView):
             raise ParseError("수정 가능한 시간이 지났습니다")
 
     def delete(swlf, request, comment_id):
-        comment = models.QuestionComment.objects.get(pk=comment_id)
+        try:
+            comment = models.QuestionComment.objects.get(pk=comment_id)
+        except models.QuestionComment.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)

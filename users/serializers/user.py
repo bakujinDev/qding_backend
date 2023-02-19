@@ -1,10 +1,10 @@
 from rest_framework.serializers import ModelSerializer
-from .models import User
+from users import models
 
 
 class PrivateUserSerializer(ModelSerializer):
     class Meta:
-        model = User
+        model = models.User
         fields = (
             "pk",
             "username",
@@ -15,7 +15,7 @@ class PrivateUserSerializer(ModelSerializer):
 
 class JoinUserSerializer(ModelSerializer):
     class Meta:
-        model = User
+        model = models.User
         fields = (
             "username",
             "name",

@@ -34,7 +34,7 @@ def getRandomUserNickname():
             .value
         )
 
-        return f"{header} {footer} {RandomName.objects.count()}"
+        return f"{header} {footer}{RandomName.objects.count()}"
 
     except Exception as exception:
         if exception.__str__() == "list index out of range":
@@ -43,7 +43,6 @@ def getRandomUserNickname():
         raise ParseError(exception)
 
 
-# {"detail":"list index out of range"}
 class Users(APIView):
     def post(self, request):
         username = request.data.get("username")

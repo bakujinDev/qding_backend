@@ -1,6 +1,6 @@
 from django.db import models
 from common.models import TimeModel, ViewsModel, VotesModel, CommentsModel
-from users.models.user import User
+from users.models import *
 
 
 class Question(TimeModel, ViewsModel):
@@ -30,6 +30,7 @@ class Question(TimeModel, ViewsModel):
         blank=True,
     )
     tag = models.ManyToManyField("qnas.Tag")
+    notification_user = models.ManyToManyField(User)
 
     def __str__(self) -> str:
         return self.title
