@@ -1,6 +1,6 @@
 from django.db import models
 from common.models import TimeModel
-from users.models import User
+from users.models.user import User
 
 
 class Tag(TimeModel):

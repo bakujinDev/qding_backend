@@ -1,7 +1,7 @@
 from django.db import models
 from .question import Question
 from common.models import TimeModel, ViewsModel, VotesModel, CommentsModel
-from users.models import User
+from users.models.user import User
 
 
 class Answer(TimeModel, ViewsModel):

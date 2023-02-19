@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticated
-from users.models import User, InitUserName
+from users.models import User, RandomName
 from users.serializers import PrivateUserSerializer, JoinUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMessage
@@ -17,25 +17,33 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def getRandomUserNickname():
-    header = (
-        InitUserName.objects.filter(
-            kind=InitUserName.NameKindChoices.HEADER,
+    try:
+        header = (
+            RandomName.objects.filter(
+                kind=RandomName.NameKindChoices.HEADER,
+            )
+            .order_by(("?"))[0]
+            .value
         )
-        .order_by(("?"))[0]
-        .value
-    )
 
-    footer = (
-        InitUserName.objects.filter(
-            kind=InitUserName.NameKindChoices.FOOTER,
+        footer = (
+            RandomName.objects.filter(
+                kind=RandomName.NameKindChoices.FOOTER,
+            )
+            .order_by(("?"))[0]
+            .value
         )
-        .order_by(("?"))[0]
-        .value
-    )
 
-    return f"{header} {footer} {InitUserName.objects.count()}"
+        return f"{header} {footer} {RandomName.objects.count()}"
+
+    except Exception as exception:
+        if exception.__str__() == "list index out of range":
+            raise Exception("Random Name does not exist")
+
+        raise ParseError(exception)
 
 
+# {"detail":"list index out of range"}
 class Users(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -98,8 +106,9 @@ class GithubLogIn(APIView):
             user_emails = user_emails.json()
 
             try:
-
                 user = User.objects.get(email=user_emails[0]["email"])
+
+                print(user)
                 refresh = RefreshToken.for_user(user)
                 return Response(
                     {
@@ -110,7 +119,6 @@ class GithubLogIn(APIView):
                 )
 
             except User.DoesNotExist:
-
                 user = User.objects.create(
                     username=user_emails[0]["email"],
                     email=user_emails[0]["email"],
@@ -130,8 +138,8 @@ class GithubLogIn(APIView):
                     status=status.HTTP_200_OK,
                 )
 
-        except Exception:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exception:
+            raise ParseError(exception)
 
 
 class KakaoLogIn(APIView):

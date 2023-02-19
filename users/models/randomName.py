@@ -1,8 +1,8 @@
 from django.db import models
 
 
-class InitUserName(models.Model):
-    """Init UserName Definition"""
+class RandomName(models.Model):
+    """RandomName Definition"""
 
     class NameKindChoices(models.TextChoices):
         HEADER = "header", "Header"

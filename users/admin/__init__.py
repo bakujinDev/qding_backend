@@ -1,3 +1,3 @@
 from .user import *
-from .initUserName import *
+from .randomName import *
 from .alarm import *

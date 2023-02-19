@@ -15,3 +15,6 @@ class Alarm(TimeModel):
         max_length=50,
     )
     push_url = models.URLField()
+
+    def __str__(self):
+        return f"{self.user} / {content}"
