@@ -8,4 +8,6 @@ urlpatterns = [
     path("me", views.Me.as_view()),
     path("log-out", views.Logout.as_view()),
     path("email-auth", views.Email_Auth.as_view()),
+    path("notification", views.Notifications.as_view()),
+    path("notification/<int:pk>", views.NotificationDetail.as_view()),
 ]

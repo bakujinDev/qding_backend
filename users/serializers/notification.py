@@ -15,3 +15,14 @@ class NotificationSerializer(serializers.ModelSerializer):
             "push_url",
             "updated_at",
         )
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Notification
+        fields = (
+            "pk",
+            "content",
+            "push_url",
+            "updated_at",
+        )
