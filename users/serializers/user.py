@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from users import models
+from qnas import serializers as qnasSerializers
 
 
 class PrivateUserSerializer(ModelSerializer):
@@ -13,10 +14,11 @@ class PrivateUserSerializer(ModelSerializer):
         )
 
 
-class JoinUserSerializer(ModelSerializer):
+class ProfileUserSerializer(ModelSerializer):
     class Meta:
         model = models.User
         fields = (
-            "username",
+            "pk",
             "name",
+            "avatar",
         )

@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from common.views import get_page
 from qnas import models, serializers
 from common.views import check_owner
-from users.models import Notification
+from users import models as usersModels
 from users.serializers import NotificationSerializer
 from users.function import add_notifications
 
@@ -31,9 +31,9 @@ class Questions(APIView):
 
         total = models.Question.objects.all().count()
 
-        page_qeustions = models.Question.objects.all().order_by("-pk")[start:end]
+        page_questions = models.Question.objects.all().order_by("-pk")[start:end]
         serializer = serializers.QuestionListSerializer(
-            page_qeustions,
+            page_questions,
             many=True,
         )
 
@@ -109,11 +109,9 @@ class QuestionComments(APIView):
         )
 
         if serializer.is_valid():
-            question = models.Question.objects.prefetch_related("notification_user").get(
-                pk=question_id
-            )
-
-            
+            question = models.Question.objects.prefetch_related(
+                "notification_user"
+            ).get(pk=question_id)
 
             comment = serializer.save(
                 creator=request.user,
@@ -179,3 +177,35 @@ class QuestionCommentDetail(APIView):
 
         else:
             raise ParseError("수정 가능한 시간이 지났습니다")
+
+
+class QuestionByCreator(APIView):
+    def get(self, request, user_pk):
+        order_opt = request.query_params.get("order_opt", "-pk")
+
+        page = get_page(request)
+        start = (page - 1) * settings.PAGE_SIZE
+        end = start + settings.PAGE_SIZE
+
+        creator = usersModels.User.objects.get(pk=user_pk)
+        total = models.Question.objects.filter(creator=creator).count()
+
+        if order_opt == "-votes":
+            page_questions = sorted(
+                models.Question.objects.all(), key=lambda a: -a.votes()
+            )[start:end]
+        else:
+            page_questions = models.Question.objects.filter(creator=creator).order_by(
+                "-pk"
+            )[start:end]
+
+        serializer = serializers.ProfileQuestionSerializer(
+            page_questions,
+            many=True,
+        )
+        return Response(
+            {
+                "total": total,
+                "list": serializer.data,
+            }
+        )

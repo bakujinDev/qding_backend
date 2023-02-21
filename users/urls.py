@@ -10,4 +10,5 @@ urlpatterns = [
     path("email-auth", views.Email_Auth.as_view()),
     path("notification", views.Notifications.as_view()),
     path("notification/<int:pk>", views.NotificationDetail.as_view()),
+    path("profile/<int:pk>", views.UserProfile.as_view()),
 ]

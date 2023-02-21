@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticated
 from users.models import User, RandomName
-from users.serializers import PrivateUserSerializer, JoinUserSerializer
+from users import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -208,7 +208,7 @@ class Me(APIView):
 
     def get(self, request):
         user = request.user
-        serializer = PrivateUserSerializer(user)
+        serializer = serializers.PrivateUserSerializer(user)
         return Response(serializer.data)
 
     # def put(self, request):
@@ -292,3 +292,10 @@ class Email_Auth(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         return Response(status=status.HTTP_200_OK)
+
+
+class UserProfile(APIView):
+    def get(self, request, pk):
+        user = User.objects.get(pk=pk)
+        serializer = serializers.ProfileUserSerializer(user)
+        return Response(serializer.data)

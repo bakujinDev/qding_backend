@@ -5,6 +5,17 @@ from .answer import *
 from common import serializers as commonSerializers
 
 
+class ProfileQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Question
+        fields = (
+            "pk",
+            "title",
+            "created_at",
+            "votes",
+        )
+
+
 class QuestionListSerializer(serializers.ModelSerializer):
     tag = TagSerializer(read_only=True, many=True)
 
