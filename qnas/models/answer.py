@@ -1,18 +1,18 @@
 from django.db import models
-from .question import Question
 from common.models import TimeModel, ViewsModel, VotesModel, CommentsModel
-from users.models.user import User
+from qnas import models as QnasModels
+from users import models as UsersModels
 
 
 class Answer(TimeModel, ViewsModel):
     creator = models.ForeignKey(
-        User,
+        UsersModels.User,
         on_delete=models.SET_NULL,
         related_name="answers",
         null=True,
     )
     question = models.ForeignKey(
-        Question,
+        QnasModels.Question,
         on_delete=models.SET_NULL,
         null=True,
         related_name="answers",
@@ -22,10 +22,16 @@ class Answer(TimeModel, ViewsModel):
     def __str__(self) -> str:
         return f"{self.creator} answered {self.question}"
 
+    def votes(self):
+        plus = self.answer_votes.filter(votes="plus").count()
+        minus = self.answer_votes.filter(votes="minus").count()
+
+        return plus - minus
+
 
 class AnswerComment(CommentsModel):
     creator = models.ForeignKey(
-        User,
+        UsersModels.User,
         on_delete=models.SET_NULL,
         related_name="answer_comments",
         null=True,
@@ -39,3 +45,21 @@ class AnswerComment(CommentsModel):
 
     def __str__(self) -> str:
         return f"{self.creator} at {self.target}"
+
+
+class AnswerVote(VotesModel):
+    creator = models.ForeignKey(
+        UsersModels.User,
+        on_delete=models.SET_NULL,
+        related_name="answer_votes",
+        null=True,
+    )
+    target = models.ForeignKey(
+        Answer,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="answer_votes",
+    )
+
+    def __str__(self) -> str:
+        return f"{self.votes} to {self.target}"

@@ -7,9 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from common.views import get_page
+from common.views import check_owner, get_page
 from qnas import models, serializers
-from common.views import check_owner
 from users import models as usersModels
 from users.serializers import NotificationSerializer
 from users.function import add_notifications
@@ -192,7 +191,8 @@ class QuestionByCreator(APIView):
 
         if order_opt == "-votes":
             page_questions = sorted(
-                models.Question.objects.all(), key=lambda a: -a.votes()
+                models.Question.objects.filter(creator=creator),
+                key=lambda a: -a.votes(),
             )[start:end]
         else:
             page_questions = models.Question.objects.filter(creator=creator).order_by(

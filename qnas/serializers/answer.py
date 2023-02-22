@@ -1,7 +1,24 @@
 from rest_framework import serializers
 from qnas import models
-from .question import *
+from django.apps import apps
+from qnas import serializers as QnasSerializers
 from common import serializers as commonSerializers
+
+
+class ProfileAnswerSerializer(serializers.ModelSerializer):
+    question = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Answer
+        fields = (
+            "pk",
+            "question",
+            "votes",
+            "created_at",
+        )
+
+    def get_question(self, obj):
+        return QnasSerializers.ForProfileAnswerSerializer(obj.question).data
 
 
 class CommentByAnswerSerializer(serializers.ModelSerializer):
@@ -39,7 +56,7 @@ class AnswerListSerializer(serializers.ModelSerializer):
 
 class AskSerializer(serializers.ModelSerializer):
     creator = commonSerializers.ProfileUserSerializer(read_only=True)
-    tag = TagSerializer(read_only=True, many=True)
+    tag = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
@@ -50,6 +67,12 @@ class AskSerializer(serializers.ModelSerializer):
             "content",
             "tag",
         )
+
+    def get_tag(self, obj):
+        return QnasSerializers.TagSerializer(
+            obj.tag,
+            many=True,
+        ).data
 
 
 class AnswerSerializer(serializers.ModelSerializer):

@@ -6,3 +6,13 @@
 query 효율성이 떨어져 model을 각자 생성하기로 함
 
 save props로 updated_fields 넣으면 auto_now 생략하고 해당 fields만 업데이트 가능
+
+serializers circular import 피하는법
+
+serializers.SerializerMethodField()
+
+def get_serializers(self, obj):
+    return CircularSerializer(
+        obj.serializer,
+        many=True,
+    ).data

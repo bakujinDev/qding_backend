@@ -5,6 +5,15 @@ from .answer import *
 from common import serializers as commonSerializers
 
 
+class ForProfileAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Question
+        fields = (
+            "pk",
+            "title",
+        )
+
+
 class ProfileQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Question

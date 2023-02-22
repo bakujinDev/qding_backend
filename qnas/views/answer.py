@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
@@ -5,17 +6,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from qnas.models import Question, Answer, AnswerComment
-from qnas.serializers import AnswerSerializer, AnswerCommentSerializer
-from common.views import check_owner
+from qnas import models
+from qnas import serializers
+from common.views import check_owner, get_page
+from users import models as usersModels
 
 
 class AnswerPost(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, question_id):
-        question = Question.objects.get(pk=question_id)
-        serializer = AnswerSerializer(
+        question = models.Question.objects.get(pk=question_id)
+        serializer = serializers.AnswerSerializer(
             data=request.data,
         )
         if serializer.is_valid():
@@ -23,7 +25,7 @@ class AnswerPost(APIView):
                 creator=request.user,
                 question=question,
             )
-            serializer = AnswerSerializer(comment)
+            serializer = serializers.AnswerSerializer(comment)
             return Response(serializer.data)
 
         else:
@@ -34,8 +36,8 @@ class AnswerComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, answer_id):
-        answer = Answer.objects.get(pk=answer_id)
-        serializer = AnswerCommentSerializer(
+        answer = models.Answer.objects.get(pk=answer_id)
+        serializer = serializers.AnswerCommentSerializer(
             data=request.data,
         )
 
@@ -44,7 +46,7 @@ class AnswerComments(APIView):
                 creator=request.user,
                 target=answer,
             )
-            serializer = AnswerCommentSerializer(comment)
+            serializer = serializers.AnswerCommentSerializer(comment)
             return Response(serializer.data)
 
         else:
@@ -55,14 +57,14 @@ class AnswerCommentDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def put(self, request, comment_id):
-        comment = AnswerComment.objects.get(pk=comment_id)
+        comment = models.AnswerComment.objects.get(pk=comment_id)
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
 
         if limit >= now:
             check_owner(request, comment.creator)
 
-            serializer = AnswerCommentSerializer(
+            serializer = serializers.AnswerCommentSerializer(
                 comment,
                 data=request.data,
                 partial=True,
@@ -70,7 +72,7 @@ class AnswerCommentDetail(APIView):
 
             if serializer.is_valid():
                 updated_comment = serializer.save()
-                serializer = AnswerCommentSerializer(updated_comment)
+                serializer = serializers.AnswerCommentSerializer(updated_comment)
                 return Response(serializer.data)
 
             else:
@@ -80,7 +82,7 @@ class AnswerCommentDetail(APIView):
             raise ParseError("수정 가능한 시간이 지났습니다")
 
     def delete(swlf, request, comment_id):
-        comment = AnswerComment.objects.get(pk=comment_id)
+        comment = models.AnswerComment.objects.get(pk=comment_id)
 
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)
@@ -93,3 +95,37 @@ class AnswerCommentDetail(APIView):
 
         else:
             raise ParseError("수정 가능한 시간이 지났습니다")
+
+
+class AnswerByCreator(APIView):
+    def get(self, request, user_pk):
+        order_opt = request.query_params.get("order_opt", "-pk")
+
+        page = get_page(request)
+        start = (page - 1) * settings.PAGE_SIZE
+        end = start + settings.PAGE_SIZE
+
+        creator = usersModels.User.objects.get(pk=user_pk)
+        total = models.Answer.objects.filter(creator=creator).count()
+
+        if order_opt == "-votes":
+            page_answers = sorted(
+                models.Answer.objects.filter(creator=creator),
+                key=lambda a: -a.votes(),
+            )[start:end]
+        else:
+            page_answers = models.Answer.objects.filter(creator=creator).order_by(
+                "-pk"
+            )[start:end]
+
+        serializer = serializers.ProfileAnswerSerializer(
+            page_answers,
+            many=True,
+        )
+
+        return Response(
+            {
+                "total": total,
+                "list": serializer.data,
+            }
+        )
