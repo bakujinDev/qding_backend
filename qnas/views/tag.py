@@ -28,37 +28,22 @@ class TagHistory(APIView):
     def get(self, request, user_pk):
         creator = usersModels.User.objects.get(pk=user_pk)
 
-        questions = (
+        history = (
             models.Tag.objects.annotate(
-                count=Count("questions", filter=Q(questions__creator=creator))
+                count=Count(
+                    "questions",
+                    filter=Q(questions__creator=creator)
+                    | Q(questions__answers__creator=creator),
+                )
             )
             .filter(count__gt=0)
             .order_by("-count")
             .values("name", "count")[:5]
         )
 
-        answers = (
-            models.Tag.objects.annotate(
-                count=Count("questions", filter=Q(questions__answers__creator=creator))
-            )
-            .filter(count__gt=0)
-            .order_by("-count")
-            .values("name", "count")[:5]
-        )
-
-        questionSerializer = serializers.TagHistorySerializer(
-            questions,
+        serializer = serializers.TagHistorySerializer(
+            history,
             many=True,
         )
 
-        answerSerializer = serializers.TagHistorySerializer(
-            answers,
-            many=True,
-        )
-
-        return Response(
-            {
-                "question": questionSerializer.data,
-                "answer": answerSerializer.data,
-            }
-        )
+        return Response(serializer.data)
