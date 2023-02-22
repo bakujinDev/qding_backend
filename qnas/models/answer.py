@@ -28,6 +28,9 @@ class Answer(TimeModel, ViewsModel):
 
         return plus - minus
 
+    def is_selected(self):
+        return self == self.question.select_answer
+
 
 class AnswerComment(CommentsModel):
     creator = models.ForeignKey(

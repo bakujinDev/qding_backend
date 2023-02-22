@@ -12,6 +12,7 @@ class QuestionAdmin(admin.ModelAdmin):
         "updated_at",
     )
 
+    list_filter = ("tag",)
     list_display_links = ("title",)
 
     date_hierarchy = "updated_at"
@@ -22,9 +23,14 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = (
         "creator",
         "question",
-        # "votes",
+        "content",
+        "votes",
+        "is_selected",
         "updated_at",
     )
+
+    list_filter = ("question__tag",)
+    list_display_links = ("content",)
 
     date_hierarchy = "updated_at"
 

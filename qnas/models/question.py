@@ -29,8 +29,11 @@ class Question(TimeModel, ViewsModel):
         null=True,
         blank=True,
     )
-    tag = models.ManyToManyField("qnas.Tag")
-    notification_user = models.ManyToManyField(User)
+    tag = models.ManyToManyField("qnas.Tag",related_name="questions")
+    notification_user = models.ManyToManyField(
+        User,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return self.title

@@ -14,6 +14,7 @@ class ProfileAnswerSerializer(serializers.ModelSerializer):
             "pk",
             "question",
             "votes",
+            "is_selected",
             "created_at",
         )
 

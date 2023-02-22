@@ -13,4 +13,5 @@ urlpatterns = [
     path("answers/<int:answer_id>/comments", views.AnswerComments.as_view()),
     path("answers/comments/<int:comment_id>", views.AnswerCommentDetail.as_view()),
     path("tags", views.Tags.as_view()),
+    path("tags/@<int:user_pk>", views.TagHistory.as_view()),
 ]

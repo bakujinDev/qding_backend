@@ -22,6 +22,7 @@ class ProfileQuestionSerializer(serializers.ModelSerializer):
             "title",
             "created_at",
             "votes",
+            "select_answer",
         )
 
 

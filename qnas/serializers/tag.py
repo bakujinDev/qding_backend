@@ -11,3 +11,15 @@ class TagSerializer(serializers.ModelSerializer):
             "name",
             "description",
         )
+
+
+class TagHistorySerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField()
+
+    class Meta:
+        model = models.Tag
+        fields = (
+            "pk",
+            "name",
+            "count",
+        )

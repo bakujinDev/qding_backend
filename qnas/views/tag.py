@@ -1,8 +1,11 @@
+from django.db.models import Q, Count
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
-from qnas.models import Tag
-from qnas.serializers import TagSerializer
+from qnas import models
+from qnas import serializers
+from users import models as usersModels
+from itertools import chain
 
 
 class Tags(APIView):
@@ -10,12 +13,52 @@ class Tags(APIView):
         search = request.query_params.get("search")
 
         if search:
-            tags = Tag.objects.filter(name__icontains=search)[:10]
+            tags = models.Tag.objects.filter(name__icontains=search)[:10]
         else:
-            tags = Tag.objects.all()[:10]
+            tags = models.Tag.objects.all()[:10]
 
-        serializer = TagSerializer(
+        serializer = serializers.TagSerializer(
             tags,
             many=True,
         )
         return Response(serializer.data)
+
+
+class TagHistory(APIView):
+    def get(self, request, user_pk):
+        creator = usersModels.User.objects.get(pk=user_pk)
+
+        questions = (
+            models.Tag.objects.annotate(
+                count=Count("questions", filter=Q(questions__creator=creator))
+            )
+            .filter(count__gt=0)
+            .order_by("-count")
+            .values("name", "count")[:5]
+        )
+
+        answers = (
+            models.Tag.objects.annotate(
+                count=Count("questions", filter=Q(questions__answers__creator=creator))
+            )
+            .filter(count__gt=0)
+            .order_by("-count")
+            .values("name", "count")[:5]
+        )
+
+        questionSerializer = serializers.TagHistorySerializer(
+            questions,
+            many=True,
+        )
+
+        answerSerializer = serializers.TagHistorySerializer(
+            answers,
+            many=True,
+        )
+
+        return Response(
+            {
+                "question": questionSerializer.data,
+                "answer": answerSerializer.data,
+            }
+        )
