@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.permissions import IsAuthenticated
-from users.models import User, RandomName
+from users import models
 from users import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMessage
@@ -19,22 +19,22 @@ from rest_framework_simplejwt.tokens import RefreshToken
 def getRandomUserNickname():
     try:
         header = (
-            RandomName.objects.filter(
-                kind=RandomName.NameKindChoices.HEADER,
+            models.RandomName.objects.filter(
+                kind=models.RandomName.NameKindChoices.HEADER,
             )
             .order_by(("?"))[0]
             .value
         )
 
         footer = (
-            RandomName.objects.filter(
-                kind=RandomName.NameKindChoices.FOOTER,
+            models.RandomName.objects.filter(
+                kind=models.RandomName.NameKindChoices.FOOTER,
             )
             .order_by(("?"))[0]
             .value
         )
 
-        return f"{header} {footer}{RandomName.objects.count()}"
+        return f"{header} {footer}{models.RandomName.objects.count()}"
 
     except Exception as exception:
         if exception.__str__() == "list index out of range":
@@ -54,7 +54,7 @@ class Users(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = User.objects.create(
+        user = models.User.objects.create(
             username=username,
             email=username,
             name=getRandomUserNickname(),
@@ -105,7 +105,7 @@ class GithubLogIn(APIView):
             user_emails = user_emails.json()
 
             try:
-                user = User.objects.get(email=user_emails[0]["email"])
+                user = models.User.objects.get(email=user_emails[0]["email"])
 
                 print(user)
                 refresh = RefreshToken.for_user(user)
@@ -117,8 +117,8 @@ class GithubLogIn(APIView):
                     status=status.HTTP_200_OK,
                 )
 
-            except User.DoesNotExist:
-                user = User.objects.create(
+            except models.User.DoesNotExist:
+                user = models.User.objects.create(
                     username=user_emails[0]["email"],
                     email=user_emails[0]["email"],
                     name=user_data.get("name") or getRandomUserNickname(),
@@ -171,7 +171,7 @@ class KakaoLogIn(APIView):
             profile = kakao_acount.get("profile")
 
             try:
-                user = User.objects.get(email=kakao_acount.get("email"))
+                user = models.User.objects.get(email=kakao_acount.get("email"))
                 refresh = RefreshToken.for_user(user)
                 return Response(
                     {
@@ -181,9 +181,9 @@ class KakaoLogIn(APIView):
                     status=status.HTTP_200_OK,
                 )
 
-            except User.DoesNotExist:
+            except models.User.DoesNotExist:
 
-                user = User.objects.create(
+                user = models.User.objects.create(
                     username=kakao_acount.get("email"),
                     email=kakao_acount.get("email"),
                     name=profile.get("nickname") or getRandomUserNickname(),
@@ -284,11 +284,11 @@ class Email_Auth(APIView):
         email_address = decoded.get(("email_address"))
 
         try:
-            user = User.objects.get(username=email_address)
+            user = models.User.objects.get(username=email_address)
             user.email_authentication = True
             user.save()
 
-        except User.DoesNotExist:
+        except models.User.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         return Response(status=status.HTTP_200_OK)
@@ -296,6 +296,9 @@ class Email_Auth(APIView):
 
 class UserProfile(APIView):
     def get(self, request, pk):
-        user = User.objects.get(pk=pk)
-        serializer = serializers.ProfileUserSerializer(user)
+        user = models.User.objects.get(pk=pk)
+        serializer = serializers.ProfileUserSerializer(
+            user,
+            context={"request": request},
+        )
         return Response(serializer.data)
