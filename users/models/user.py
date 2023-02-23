@@ -25,14 +25,20 @@ class User(AbstractUser):
     email_authentication = models.BooleanField(
         default=False, help_text="authentication by email"
     )
-    message = models.CharField(
+    introduce = models.CharField(
         max_length=120,
         default="",
         null=True,
+        blank=True,
     )
-    blog = models.URLField(null=True)
-    github = models.URLField(null=True)
+    blog = models.URLField(
+        null=True,
+        blank=True,
+    )
+    github = models.URLField(
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
-

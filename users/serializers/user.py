@@ -9,7 +9,6 @@ class PrivateUserSerializer(ModelSerializer):
         model = models.User
         fields = (
             "pk",
-            "username",
             "name",
             "avatar",
         )
@@ -24,8 +23,10 @@ class ProfileUserSerializer(ModelSerializer):
             "pk",
             "name",
             "avatar",
-            "message",
+            "introduce",
             "is_owner",
+            "blog",
+            "github",
         )
 
     def get_is_owner(self, obj):
