@@ -35,7 +35,7 @@ class VotesModel(TimeModel):
         Plus = "plus", "Plus"
         Minus = "minus", "Minus"
 
-    votes = models.CharField(
+    vote_type = models.CharField(
         max_length=6,
         choices=VoteKindChoices.choices,
     )

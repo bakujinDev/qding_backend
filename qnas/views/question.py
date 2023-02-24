@@ -94,9 +94,24 @@ class QuestionVotes(APIView):
     def post(self, request, question_id):
         question = models.Question.objects.get(pk=question_id)
 
-        vote = models.QuestionVote.objects.get(target=question, creator=request.user)
-        print(vote)
-        return Response({"hi": "hi"})
+        vote = models.QuestionVote.objects.filter(target=question, creator=request.user)
+
+        if vote.exists():
+            raise ParseError("이미 투표한 질문이에요.")
+
+        else:
+            serializer = serializers.QuestionVoteSerializer(data=request.data)
+
+            if serializer.is_valid():
+                vote = serializer.save(
+                    creator=request.user,
+                    target=question,
+                )
+                serializer = serializers.QuestionVoteSerializer(vote)
+                return Response(serializer.data)
+
+            else:
+                return Response(serializer.errors)
 
 
 class QuestionComments(APIView):

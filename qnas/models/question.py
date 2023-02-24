@@ -42,8 +42,8 @@ class Question(TimeModel, ViewsModel):
         return self.answers.count()
 
     def votes(self):
-        plus = self.question_votes.filter(votes="plus").count()
-        minus = self.question_votes.filter(votes="minus").count()
+        plus = self.question_votes.filter(vote_type="plus").count()
+        minus = self.question_votes.filter(vote_type="minus").count()
 
         return plus - minus
 
@@ -81,4 +81,4 @@ class QuestionVote(VotesModel):
     )
 
     def __str__(self) -> str:
-        return f"{self.votes} to {self.target}"
+        return f"{self.vote_type} to {self.target}"

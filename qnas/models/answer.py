@@ -23,8 +23,8 @@ class Answer(TimeModel, ViewsModel):
         return f"{self.creator} answered {self.question}"
 
     def votes(self):
-        plus = self.answer_votes.filter(votes="plus").count()
-        minus = self.answer_votes.filter(votes="minus").count()
+        plus = self.answer_votes.filter(vote_type="plus").count()
+        minus = self.answer_votes.filter(vote_type="minus").count()
 
         return plus - minus
 
@@ -65,4 +65,4 @@ class AnswerVote(VotesModel):
     )
 
     def __str__(self) -> str:
-        return f"{self.votes} to {self.target}"
+        return f"{self.vote_type} to {self.target}"

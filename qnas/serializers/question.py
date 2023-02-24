@@ -103,9 +103,22 @@ class QuestionSerializer(serializers.ModelSerializer):
             return models.QuestionVote.objects.get(
                 creator=request.user,
                 target=model.pk,
-            ).votes
+            ).vote_type
         except:
             return 0
+
+
+class QuestionVoteSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.NameUserSerializer(read_only=True)
+
+    class Meta:
+        model = models.QuestionVote
+        fields = (
+            "creator",
+            "target",
+            "vote_type",
+            "updated_at",
+        )
 
 
 class QuestionCommentSerializer(serializers.ModelSerializer):
