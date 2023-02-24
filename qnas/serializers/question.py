@@ -73,7 +73,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True,
     )
-    is_voted = serializers.SerializerMethodField()
+    is_question_voted = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
@@ -90,10 +90,10 @@ class QuestionSerializer(serializers.ModelSerializer):
             "votes",
             "question_comments",
             "answers",
-            "is_voted",
+            "is_question_voted",
         )
 
-    def get_is_voted(self, model):
+    def get_is_question_voted(self, model):
         request = self.context.get("request")
 
         if not request or not request.user.is_authenticated:

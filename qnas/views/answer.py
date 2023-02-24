@@ -32,6 +32,32 @@ class AnswerPost(APIView):
             return Response(serializer.errors)
 
 
+class AnswerVotes(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def post(self, request, answer_id):
+        answer = models.Answer.objects.get(pk=answer_id)
+
+        vote = models.AnswerVote.objects.filter(target=answer, creator=request.user)
+
+        if vote.exists():
+            raise ParseError("이미 투표한 질문이에요.")
+
+        else:
+            serializer = serializers.AnswerVoteSerializer(data=request.data)
+
+            if serializer.is_valid():
+                vote = serializer.save(
+                    creator=request.user,
+                    target=answer,
+                )
+                serializer = serializers.AnswerVoteSerializer(vote)
+                return Response(serializer.data)
+
+            else:
+                return Response(serializer.errors)
+
+
 class AnswerComments(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 

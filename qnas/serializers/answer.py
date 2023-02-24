@@ -42,6 +42,7 @@ class AnswerListSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True,
     )
+    is_answer_voted = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Answer
@@ -52,7 +53,22 @@ class AnswerListSerializer(serializers.ModelSerializer):
             "content",
             "updated_at",
             "answer_comments",
+            "is_answer_voted",
         )
+
+    def get_is_answer_voted(self, model):
+        request = self.context.get("request")
+
+        if not request or not request.user.is_authenticated:
+            return None
+
+        try:
+            return models.AnswerVote.objects.get(
+                creator=request.user,
+                target=model.pk,
+            ).vote_type
+        except:
+            return 0
 
 
 class AskSerializer(serializers.ModelSerializer):
@@ -85,6 +101,19 @@ class AnswerSerializer(serializers.ModelSerializer):
             "creator",
             "question",
             "content",
+            "updated_at",
+        )
+
+
+class AnswerVoteSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.NameUserSerializer(read_only=True)
+
+    class Meta:
+        model = models.AnswerVote
+        fields = (
+            "creator",
+            "target",
+            "vote_type",
             "updated_at",
         )
 
