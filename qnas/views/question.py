@@ -11,7 +11,7 @@ from common.views import check_owner, get_page
 from qnas import models, serializers
 from users import models as usersModels
 from users.serializers import NotificationSerializer
-from users.function import add_notifications
+from users.function import add_notifications_to_user_list, add_notification
 
 
 def add_tags(tags, question):
@@ -90,13 +90,25 @@ class QuestionDetail(APIView):
 
 class ChoiceAnswer(APIView):
     def post(self, request, question_id):
-        question = models.Question.objects.get(pk=question_id)
+        question = models.Question.objects.select_related("select_answer").get(
+            pk=question_id
+        )
         answer_id = request.data.get("answerId")
 
+        if question.select_answer:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data="이미 답변을 선택한 질문이에요")
+
         try:
-            ansewr = models.Answer.objects.get(pk=answer_id)
-            question.select_answer = ansewr
+            answer = models.Answer.objects.select_related("creator").get(pk=answer_id)
+            question.select_answer = answer
             question.save(update_fields=["select_answer"])
+
+            add_notification(
+                answer.creator,
+                content="답변이 선택되었어요",
+                push_url=f"/qna/{question_id}?answerId={answer_id}",
+            )
+
             return Response({"ok": "ok"})
 
         except models.Answer.DoesNotExist:
@@ -148,7 +160,7 @@ class QuestionComments(APIView):
             )
             serializer = serializers.QuestionCommentSerializer(comment)
 
-            add_notifications(
+            add_notifications_to_user_list(
                 question,
                 request.user,
                 content="새로운 댓글이 추가되었어요",

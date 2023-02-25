@@ -3,7 +3,19 @@ from users.models import Notification
 import urllib
 
 
-def add_notifications(
+def add_notification(
+    user,
+    content,
+    push_url,
+):
+    Notification.objects.create(
+        user=user,
+        content=content,
+        push_url=urllib.parse.urljoin(settings.BASE_URL, push_url),
+    )
+
+
+def add_notifications_to_user_list(
     model,
     request_user,
     content,
