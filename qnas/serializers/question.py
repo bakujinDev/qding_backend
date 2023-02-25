@@ -73,6 +73,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True,
     )
+    is_question_owner = serializers.SerializerMethodField()
     is_question_voted = serializers.SerializerMethodField()
 
     class Meta:
@@ -90,8 +91,13 @@ class QuestionSerializer(serializers.ModelSerializer):
             "votes",
             "question_comments",
             "answers",
+            "is_question_owner",
             "is_question_voted",
         )
+
+    def get_is_question_owner(self, model):
+        request = self.context.get("request")
+        return model.creator == request.user
 
     def get_is_question_voted(self, model):
         request = self.context.get("request")
@@ -105,7 +111,7 @@ class QuestionSerializer(serializers.ModelSerializer):
                 target=model.pk,
             ).vote_type
         except:
-            return 0
+            return None
 
 
 class QuestionVoteSerializer(serializers.ModelSerializer):

@@ -88,6 +88,21 @@ class QuestionDetail(APIView):
         return Response(serializer.data)
 
 
+class ChoiceAnswer(APIView):
+    def post(self, request, question_id):
+        question = models.Question.objects.get(pk=question_id)
+        answer_id = request.data.get("answerId")
+
+        try:
+            ansewr = models.Answer.objects.get(pk=answer_id)
+            question.select_answer = ansewr
+            question.save(update_fields=["select_answer"])
+            return Response({"ok": "ok"})
+
+        except models.Answer.DoesNotExist:
+            raise NotFound
+
+
 class QuestionVotes(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -178,7 +193,7 @@ class QuestionCommentDetail(APIView):
         try:
             comment = models.QuestionComment.objects.get(pk=comment_id)
         except models.QuestionComment.DoesNotExist:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            raise NotFound
 
         now = timezone.localtime()
         limit = comment.created_at.astimezone() + timezone.timedelta(minutes=5)

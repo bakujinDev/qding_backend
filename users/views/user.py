@@ -293,7 +293,7 @@ class Email_Auth(APIView):
             user.save()
 
         except models.User.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            raise NotFound
 
         return Response(status=status.HTTP_200_OK)
 

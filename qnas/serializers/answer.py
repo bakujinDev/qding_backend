@@ -42,6 +42,7 @@ class AnswerListSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True,
     )
+    is_answer_selected = serializers.SerializerMethodField()
     is_answer_voted = serializers.SerializerMethodField()
 
     class Meta:
@@ -53,8 +54,12 @@ class AnswerListSerializer(serializers.ModelSerializer):
             "content",
             "updated_at",
             "answer_comments",
+            "is_answer_selected",
             "is_answer_voted",
         )
+
+    def get_is_answer_selected(self, model):
+        return model == model.question.select_answer
 
     def get_is_answer_voted(self, model):
         request = self.context.get("request")
@@ -68,7 +73,7 @@ class AnswerListSerializer(serializers.ModelSerializer):
                 target=model.pk,
             ).vote_type
         except:
-            return 0
+            return None
 
 
 class AskSerializer(serializers.ModelSerializer):
