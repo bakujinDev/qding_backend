@@ -1,6 +1,21 @@
+import urllib
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.exceptions import ParseError, NotFound
 from django.conf import settings
 from users.models import Notification
-import urllib
+
+
+def subscribe_notification(
+    model,
+    request_user,
+):
+    subscribeExist = model.notification_user.filter(pk=request_user.pk).exists()
+
+    if subscribeExist:
+        raise ParseError("이미 알람 받고 있어요")
+    else:
+        model.notification_user.add(request_user)
 
 
 def add_notification(
@@ -31,4 +46,4 @@ def add_notifications_to_user_list(
             push_url=urllib.parse.urljoin(settings.BASE_URL, push_url),
         )
 
-        model.notification_user.add(request_user)
+        subscribe_notification(model=model, request_user=request_user)

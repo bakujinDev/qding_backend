@@ -18,6 +18,10 @@ class Answer(TimeModel, ViewsModel):
         related_name="answers",
     )
     content = models.TextField(max_length=3000)
+    notification_user = models.ManyToManyField(
+        UsersModels.User,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return f"{self.creator} answered {self.question}"
