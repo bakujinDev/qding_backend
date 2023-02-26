@@ -28,7 +28,11 @@ class Notifications(APIView):
         model_type = request.data.get("type")
         model_pk = request.data.get("id")
 
-        if model_type == "answer":
+        if model_type == "question":
+            model = qnasModels.Question.objects.prefetch_related(
+                "notification_user"
+            ).get(pk=model_pk)
+        elif model_type == "answer":
             model = qnasModels.Answer.objects.prefetch_related("notification_user").get(
                 pk=model_pk
             )

@@ -107,6 +107,7 @@ class QuestionPostSerializer(serializers.ModelSerializer):
     )
     is_question_owner = serializers.SerializerMethodField()
     is_question_voted = serializers.SerializerMethodField()
+    is_question_described = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
@@ -125,6 +126,7 @@ class QuestionPostSerializer(serializers.ModelSerializer):
             "answers",
             "is_question_owner",
             "is_question_voted",
+            "is_question_described",
         )
 
     def get_is_question_owner(self, model):
@@ -144,6 +146,11 @@ class QuestionPostSerializer(serializers.ModelSerializer):
             ).vote_type
         except:
             return None
+
+    def get_is_question_described(self, model):
+        request = self.context.get("request")
+
+        return model.notification_user.filter(pk=request.user.pk).exists()
 
 
 class QuestionVoteSerializer(serializers.ModelSerializer):

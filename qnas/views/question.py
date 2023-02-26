@@ -55,8 +55,12 @@ class Questions(APIView):
 
                     add_tags(tags, question)
 
-                    serializer = serializers.AskSerializer(question)
+                    function.subscribe_notification(
+                        model=models.question,
+                        request_user=request.user,
+                    )
 
+                    serializer = serializers.AskSerializer(question)
                     return Response(serializer.data)
 
             except Exception as exception:
@@ -107,8 +111,8 @@ class QuestionDetail(APIView):
                     serializer = serializers.AskSerializer(question)
                     return Response(serializer.data)
 
-            except Exception:
-                raise ParseError("Amenity not found")
+            except Exception as exception:
+                raise ParseError(exception)
         else:
             return Response(serializer.errors)
 
