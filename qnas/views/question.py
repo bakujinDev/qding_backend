@@ -75,12 +75,42 @@ class QuestionDetail(APIView):
     def get(self, request, question_id):
         question = models.Question.objects.get(pk=question_id)
 
-        serializer = serializers.QuestionDetailSerializer(
-            question,
-            context={"request": request},
-        )
+        serializer = serializers.AskSerializer(question)
 
         return Response(serializer.data)
+
+    def put(self, request, question_id):
+        # 추후 수정요청 -> 동의 2명시 수정 으로 패치예정
+        question = models.Question.objects.get(pk=question_id)
+
+        check_owner(request, question.creator)
+
+        serializer = serializers.AskSerializer(
+            question,
+            data=request.data,
+            partial=True,
+        )
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    question = serializer.save()
+
+                    tags = request.data.get("tag")
+
+                    if tags != None:
+                        question.tag.clear()
+
+                        if tags:
+                            add_tags(tags, question)
+
+                    serializer = serializers.AskSerializer(question)
+                    return Response(serializer.data)
+
+            except Exception:
+                raise ParseError("Amenity not found")
+        else:
+            return Response(serializer.errors)
 
 
 class QuestionPost(APIView):

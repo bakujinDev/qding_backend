@@ -29,7 +29,10 @@ class Question(TimeModel, ViewsModel):
         null=True,
         blank=True,
     )
-    tag = models.ManyToManyField("qnas.Tag",related_name="questions")
+    tag = models.ManyToManyField(
+        "qnas.Tag",
+        related_name="questions",
+    )
     notification_user = models.ManyToManyField(
         User,
         blank=True,
