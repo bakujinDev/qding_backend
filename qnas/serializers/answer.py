@@ -79,27 +79,6 @@ class AnswerListSerializer(serializers.ModelSerializer):
         return model.notification_user.filter(pk=request.user.pk).exists()
 
 
-class AskSerializer(serializers.ModelSerializer):
-    creator = commonSerializers.ProfileUserSerializer(read_only=True)
-    tag = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.Question
-        fields = (
-            "pk",
-            "creator",
-            "title",
-            "content",
-            "tag",
-        )
-
-    def get_tag(self, obj):
-        return QnasSerializers.TagSerializer(
-            obj.tag,
-            many=True,
-        ).data
-
-
 class AnswerSerializer(serializers.ModelSerializer):
     creator = commonSerializers.ProfileUserSerializer(read_only=True)
 

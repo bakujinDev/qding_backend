@@ -32,6 +32,35 @@ class AnswerPost(APIView):
             return Response(serializer.errors)
 
 
+class AnswerDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, answer_id):
+        answer = models.Answer.objects.get(pk=answer_id)
+        serializer = serializers.AnswerSerializer(answer)
+        return Response(serializer.data)
+
+    def put(self, request, answer_id):
+        # 추후 수정요청 -> 동의 2명시 수정 으로 패치예정
+        answer = models.Answer.objects.get(pk=answer_id)
+
+        check_owner(request, answer.creator)
+
+        serializer = serializers.AnswerSerializer(
+            answer,
+            data=request.data,
+            partial=True,
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            serializer = serializers.AnswerSerializer(answer)
+            return Response(serializer.data)
+
+        else:
+            return Response(serializer.errors)
+
+
 class AnswerVotes(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
