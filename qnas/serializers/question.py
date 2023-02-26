@@ -61,7 +61,39 @@ class CommentByQuestionSerializer(serializers.ModelSerializer):
         )
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionDetailSerializer(serializers.ModelSerializer):
+    creator = commonSerializers.ProfileUserSerializer(read_only=True)
+    editor = commonSerializers.ProfileUserSerializer(read_only=True)
+    tag = TagListSerializer(read_only=True, many=True)
+    question_comments = CommentByQuestionSerializer(
+        read_only=True,
+        many=True,
+    )
+    is_question_owner = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Question
+        fields = (
+            "pk",
+            "creator",
+            "editor",
+            "title",
+            "content",
+            "select_answer",
+            "views",
+            "updated_at",
+            "tag",
+            "votes",
+            "question_comments",
+            "is_question_owner",
+        )
+
+    def get_is_question_owner(self, model):
+        request = self.context.get("request")
+        return model.creator == request.user
+
+
+class QuestionPostSerializer(serializers.ModelSerializer):
     creator = commonSerializers.ProfileUserSerializer(read_only=True)
     editor = commonSerializers.ProfileUserSerializer(read_only=True)
     tag = TagSerializer(read_only=True, many=True)

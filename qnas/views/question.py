@@ -75,12 +75,26 @@ class QuestionDetail(APIView):
     def get(self, request, question_id):
         question = models.Question.objects.get(pk=question_id)
 
+        serializer = serializers.QuestionDetailSerializer(
+            question,
+            context={"request": request},
+        )
+
+        return Response(serializer.data)
+
+
+class QuestionPost(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, question_id):
+        question = models.Question.objects.get(pk=question_id)
+
         viewLocalItem = request.query_params.get("viewLocalItem")
         if not viewLocalItem:
             question.views = question.views + 1
             question.save(update_fields=["views"])
 
-        serializer = serializers.QuestionSerializer(
+        serializer = serializers.QuestionPostSerializer(
             question,
             context={"request": request},
         )
