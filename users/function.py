@@ -6,16 +6,18 @@ from django.conf import settings
 from users.models import Notification
 
 
-def subscribe_notification(
-    model,
-    request_user,
-):
+def subscribe_notification(model, request_user, create_or_delete):
     subscribeExist = model.notification_user.filter(pk=request_user.pk).exists()
 
     if subscribeExist:
-        raise ParseError("이미 알람 받고 있어요")
+        if create_or_delete:
+            model.notification_user.remove(request_user)
+
+            return "remove"
     else:
         model.notification_user.add(request_user)
+
+        return "create"
 
 
 def add_notification(

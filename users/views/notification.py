@@ -36,9 +36,13 @@ class Notifications(APIView):
         if not model:
             return Response(status.HTTP_400_BAD_REQUEST)
 
-        function.subscribe_notification(model=model, request_user=request.user)
+        res = function.subscribe_notification(
+            model=model,
+            request_user=request.user,
+            create_or_delete=True,
+        )
 
-        return Response({"ok": f"{model_type} {model_pk}"})
+        return Response({"message": res})
 
 
 class NotificationDetail(APIView):
