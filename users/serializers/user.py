@@ -4,6 +4,12 @@ from users import models
 from qnas import serializers as qnasSerializers
 
 
+class AuthSerializer(ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ("username",)
+
+
 class PrivateUserSerializer(ModelSerializer):
     class Meta:
         model = models.User

@@ -45,33 +45,61 @@ def getRandomUserNickname():
 
 class Users(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        serializer = serializers.AuthSerializer(
+            data=request.data,
+        )
 
-        if not username or not password:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+        if serializer.is_valid():
+            username = request.data.get("username")
+
+            payload = {
+                "email_address": username,
+            }
+            site_address = "http://localhost:3000/"
+            token = jwt.encode(payload, settings.SECRET_KEY)
+
+            emailContent = render_to_string(
+                "email.html",
+                {
+                    "email": username,
+                    "url": os.path.join(
+                        site_address, "auth", "email_authentication", token
+                    ),
+                },
             )
 
-        user = models.User.objects.create(
-            username=username,
-            email=username,
-            name=getRandomUserNickname(),
-        )
+            email = EmailMessage(
+                "[Qding] 회원 인증 메일입니다.",
+                emailContent,
+                to=[username],
+            )
+            email.content_subtype = "html"
+            email.send()
 
-        user.set_password(password)
-        user.save()
+            return Response(status=status.HTTP_200_OK)
+            # user = models.User.objects.create(
+            #     username=username,
+            #     name=getRandomUserNickname(),
+            # )
 
-        refresh = RefreshToken.for_user(user)
+            # user.set_unusable_password()
+            # user.save()
 
-        return Response(
-            {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            },
-            status=status.HTTP_200_OK,
-        )
+            # refresh = RefreshToken.for_user(user)
+
+            # return Response(
+            #     {
+            #         "refresh": str(refresh),
+            #         "access": str(refresh.access_token),
+            #     },
+            #     status=status.HTTP_200_OK,
+            # )
+
+        else:
+            if serializer.errors.get("username")[0].code == "unique":
+                raise ParseError("이미 존재하는 계정 입니다")
+
+            raise ParseError(serializer.errors)
 
 
 class GithubLogIn(APIView):
@@ -120,7 +148,6 @@ class GithubLogIn(APIView):
             except models.User.DoesNotExist:
                 user = models.User.objects.create(
                     username=user_emails[0]["email"],
-                    email=user_emails[0]["email"],
                     name=user_data.get("name") or getRandomUserNickname(),
                     avatar=user_data.get("avatar_url"),
                 )
@@ -185,7 +212,6 @@ class KakaoLogIn(APIView):
 
                 user = models.User.objects.create(
                     username=kakao_acount.get("email"),
-                    email=kakao_acount.get("email"),
                     name=profile.get("nickname") or getRandomUserNickname(),
                     avatar=profile.get("profile_image_url"),
                 )
@@ -252,7 +278,7 @@ class Email_Auth(APIView):
         user = request.user
 
         payload = {
-            "email_address": user.email,
+            "email_address": user.username,
         }
         site_address = "http://localhost:3000/"
         token = jwt.encode(payload, settings.SECRET_KEY)

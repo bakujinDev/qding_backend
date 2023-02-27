@@ -8,16 +8,12 @@ class CustomUserAdmin(UserAdmin):
 
     list_display = (
         "name",
-        "email",
-        "email_authentication",
+        "username",
         "last_login",
         "date_joined",
     )
 
-    list_display_links = (
-        "name",
-        "email",
-    )
+    list_display_links = ("name",)
 
     date_hierarchy = "date_joined"
 
@@ -28,10 +24,7 @@ class CustomUserAdmin(UserAdmin):
                 "fields": (
                     "avatar",
                     "username",
-                    "password",
                     "name",
-                    "email",
-                    "email_authentication",
                 ),
                 "classes": ("wide",),
             },
