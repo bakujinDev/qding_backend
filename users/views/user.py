@@ -53,7 +53,7 @@ class Users(APIView):
             username = request.data.get("username")
 
             payload = {
-                "email_address": username,
+                "username": username,
             }
             site_address = "http://localhost:3000/"
             token = jwt.encode(payload, settings.SECRET_KEY)
@@ -77,29 +77,49 @@ class Users(APIView):
             email.send()
 
             return Response(status=status.HTTP_200_OK)
-            # user = models.User.objects.create(
-            #     username=username,
-            #     name=getRandomUserNickname(),
-            # )
-
-            # user.set_unusable_password()
-            # user.save()
-
-            # refresh = RefreshToken.for_user(user)
-
-            # return Response(
-            #     {
-            #         "refresh": str(refresh),
-            #         "access": str(refresh.access_token),
-            #     },
-            #     status=status.HTTP_200_OK,
-            # )
 
         else:
             if serializer.errors.get("username")[0].code == "unique":
                 raise ParseError("이미 존재하는 계정 입니다")
 
             raise ParseError(serializer.errors)
+
+
+class EmailLogin(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+
+        try:
+            user = models.User.objects.get(username=username)
+
+            payload = {
+                "username": username,
+            }
+            site_address = "http://localhost:3000/"
+            token = jwt.encode(payload, settings.SECRET_KEY)
+
+            emailContent = render_to_string(
+                "email.html",
+                {
+                    "email": username,
+                    "url": os.path.join(
+                        site_address, "auth", "email_authentication", token
+                    ),
+                },
+            )
+
+            email = EmailMessage(
+                "[Qding] 회원 인증 메일입니다.",
+                emailContent,
+                to=[username],
+            )
+            email.content_subtype = "html"
+            email.send()
+
+            return Response(status=status.HTTP_200_OK)
+
+        except Exception as exception:
+            raise ParseError(exception)
 
 
 class GithubLogIn(APIView):
@@ -133,17 +153,7 @@ class GithubLogIn(APIView):
             user_emails = user_emails.json()
 
             try:
-                user = models.User.objects.get(email=user_emails[0]["email"])
-
-                print(user)
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {
-                        "refresh": str(refresh),
-                        "access": str(refresh.access_token),
-                    },
-                    status=status.HTTP_200_OK,
-                )
+                user = models.User.objects.get(username=user_emails[0]["email"])
 
             except models.User.DoesNotExist:
                 user = models.User.objects.create(
@@ -155,14 +165,17 @@ class GithubLogIn(APIView):
                 user.set_unusable_password()
                 user.save()
 
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {
-                        "refresh": str(refresh),
-                        "access": str(refresh.access_token),
-                    },
-                    status=status.HTTP_200_OK,
-                )
+            serializer = serializers.PrivateUserSerializer(user)
+
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "user": serializer.data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except Exception as exception:
             raise ParseError(exception)
@@ -184,6 +197,7 @@ class KakaoLogIn(APIView):
                     "code": code,
                 },
             )
+
             access_token = access_token.json().get("access_token")
 
             user_data = requests.get(
@@ -197,16 +211,12 @@ class KakaoLogIn(APIView):
             kakao_acount = user_data.get("kakao_account")
             profile = kakao_acount.get("profile")
 
+            print(kakao_acount.get("email"))
+            print(profile.get("nickname"))
+            print(profile.get("profile_image_url"))
+
             try:
-                user = models.User.objects.get(email=kakao_acount.get("email"))
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {
-                        "refresh": str(refresh),
-                        "access": str(refresh.access_token),
-                    },
-                    status=status.HTTP_200_OK,
-                )
+                user = models.User.objects.get(username=kakao_acount.get("email"))
 
             except models.User.DoesNotExist:
 
@@ -217,16 +227,21 @@ class KakaoLogIn(APIView):
                 )
                 user.set_unusable_password()
                 user.save()
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {
-                        "refresh": str(refresh),
-                        "access": str(refresh.access_token),
-                    },
-                    status=status.HTTP_200_OK,
-                )
-        except Exception:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = serializers.PrivateUserSerializer(user)
+
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "user": serializer.data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as exception:
+            raise ParseError(exception)
 
 
 class Me(APIView):
@@ -278,7 +293,7 @@ class Email_Auth(APIView):
         user = request.user
 
         payload = {
-            "email_address": user.username,
+            "username": user.username,
         }
         site_address = "http://localhost:3000/"
         token = jwt.encode(payload, settings.SECRET_KEY)
@@ -311,17 +326,31 @@ class Email_Auth(APIView):
             settings.SECRET_KEY,
             algorithms="HS256",
         )
-        email_address = decoded.get(("email_address"))
+        username = decoded.get(("username"))
 
         try:
-            user = models.User.objects.get(username=email_address)
-            user.email_authentication = True
-            user.save()
+            user = models.User.objects.get(username=username)
 
         except models.User.DoesNotExist:
-            raise NotFound
+            user = models.User.objects.create(
+                username=username,
+                name=getRandomUserNickname(),
+            )
 
-        return Response(status=status.HTTP_200_OK)
+            user.set_unusable_password()
+            user.save()
+
+        serializer = serializers.PrivateUserSerializer(user)
+
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "user": serializer.data,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class UserProfile(APIView):

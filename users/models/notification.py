@@ -17,4 +17,4 @@ class Notification(TimeModel):
     push_url = models.URLField()
 
     def __str__(self):
-        return f"{self.user} / {content}"
+        return f"{self.user} / {self.content}"

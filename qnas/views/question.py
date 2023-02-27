@@ -67,6 +67,7 @@ class Questions(APIView):
                 raise ParseError(exception)
 
         else:
+            print(request.data.get("tag"))
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST,

@@ -33,7 +33,7 @@
       "
     >
       안녕하세요,<br />
-      아이디 <u>{{email}}</u>로 부터 이메일 인증이 요청되었습니다.<br />
+      아이디 <u>{{email}}</u>로 부터 계정이 요청되었습니다.<br />
       본인이시라면 하단의 <u> 인증하기 버튼</u>을 눌러주세요
     </p>
 
@@ -45,6 +45,7 @@
         display: block;
         width: 180px;
         height: 40px;
+        min-height: 40px;
         margin: 20px auto 0;
         font-size: 16px;
         font-weight: 500;
@@ -59,5 +60,19 @@
     >
       인증하기
     </a>
+
+    <p
+      class="text"
+      style="
+        display: block;
+        margin: 14px auto 0;
+        font-size: 16px;
+        color: #1a202c;
+      "
+    >
+      해당 버튼이 작동하지 않는다면<br />
+      {{url}}
+      <br />위의 주소를 복사하여 이동하여주세요
+    </p>
   </article>
 </section>
