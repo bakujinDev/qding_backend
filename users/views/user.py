@@ -268,7 +268,7 @@ class Me(APIView):
         else:
             return Response(
                 serializer.errors,
-                status=HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
 

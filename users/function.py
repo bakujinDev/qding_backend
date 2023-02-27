@@ -6,7 +6,7 @@ from django.conf import settings
 from users.models import Notification
 
 
-def subscribe_notification(model, request_user, create_or_delete):
+def subscribe_notification(model, request_user, create_or_delete=False):
     subscribeExist = model.notification_user.filter(pk=request_user.pk).exists()
 
     if subscribeExist:

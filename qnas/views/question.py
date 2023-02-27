@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from common.views import check_owner, get_page
 from qnas import models, serializers
 from users import models as usersModels
+from users import function
 from users.serializers import NotificationSerializer
 from users.function import add_notifications_to_user_list, add_notification
 
@@ -56,7 +57,7 @@ class Questions(APIView):
                     add_tags(tags, question)
 
                     function.subscribe_notification(
-                        model=models.question,
+                        model=question,
                         request_user=request.user,
                     )
 
