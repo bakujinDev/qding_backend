@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "qding_backend"}]
 
 [tool.poetry.dependencies]
-python = "^3.8.2"
+python = "^3.11"
 djangorestframework = "^3.14.0"
 djangorestframework-simplejwt = "^5.2.2"
 django-cors-headers = "^3.13.0"
