@@ -12,6 +12,8 @@ pip install dj-database-url
 pip install djangorestframework
 pip install djangorestframework-simplejwt
 pip install django-cors-headers
+pip install psycopg2
+pip install psycopg2-binary
 
 python manage.py collectstatic --no-input
 python manage.py migrate
