@@ -1,3 +1,4 @@
+import re
 from django.conf import settings
 from django.db import transaction, connection
 from django.utils import timezone
@@ -25,13 +26,36 @@ class Questions(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
+
         page = get_page(request)
         start = (page - 1) * settings.PAGE_SIZE
         end = start + settings.PAGE_SIZE
 
-        total = models.Question.objects.all().count()
+        q = {}
 
-        page_questions = models.Question.objects.all().order_by("-pk")[start:end]
+        search = request.query_params.get("search")
+
+        if search:
+            search_regex = re.search("\[(.*?)\]", search)
+
+            if search_regex:
+                tag = search_regex.group(1)
+                search = search.replace(search_regex.group(), "")
+
+                try:
+                    tag = models.Tag.objects.get(name__iexact=tag)
+                    q.update({"tag": tag})
+
+                except tag.DoesNotExist:
+                    raise NotFoundƒ
+
+            q.update({"title__icontains": search})
+
+        result = models.Question.objects.filter(**q)
+
+        total = result.count()
+
+        page_questions = result.order_by("-pk")[start:end]
         serializer = serializers.QuestionListSerializer(
             page_questions,
             many=True,
