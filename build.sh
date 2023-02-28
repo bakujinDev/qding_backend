@@ -3,6 +3,7 @@
 set -o errexit
 pip install --upgrade pip
 
+poetry self update
 poetry lock
 poetry install
 # pip install django
