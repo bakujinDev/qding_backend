@@ -16,6 +16,7 @@ pip install psycopg2
 pip install psycopg2-binary
 pip install whitenoise
 pip install requests
+pip install gunicorn
 
 python manage.py collectstatic --no-input
 python manage.py migrate
