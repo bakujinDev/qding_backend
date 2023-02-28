@@ -3,6 +3,7 @@
 set -o errexit
 pip install --upgrade pip
 
+pip install django
 # poetry install
 # pip install --force-reinstall -U setuptools
 
