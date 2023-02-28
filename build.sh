@@ -15,6 +15,7 @@ pip install django-cors-headers
 pip install psycopg2
 pip install psycopg2-binary
 pip install whitenoise
+pip install requests
 
 python manage.py collectstatic --no-input
 python manage.py migrate
