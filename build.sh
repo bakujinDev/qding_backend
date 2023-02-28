@@ -17,6 +17,8 @@ pip install psycopg2-binary
 pip install whitenoise
 pip install requests
 pip install gunicorn
+pip install --upgrade sentry-sdk
+
 
 python manage.py collectstatic --no-input
 python manage.py migrate

@@ -14,7 +14,8 @@ from pathlib import Path
 import environ
 import os
 import dj_database_url
-
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 env = environ.Env()
 
@@ -210,3 +211,20 @@ CLOUD_FLARE_ID = env("CLOUD_FLARE_ID")
 
 # config
 PAGE_SIZE = 10
+
+
+# sentry
+if not DEBUG:
+    sentry_sdk.init(
+        dsn="https://afc8446cbd764eb39f84b65702d1cb17@o4504571051376640.ingest.sentry.io/4504758382952448",
+        integrations=[
+            DjangoIntegration(),
+        ],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True,
+    )

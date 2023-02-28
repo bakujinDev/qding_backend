@@ -1,6 +1,11 @@
 from django.urls import path
 from . import views
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     path("questions", views.Questions.as_view()),
     path("questions/@<int:user_pk>", views.QuestionByCreator.as_view()),
@@ -18,4 +23,5 @@ urlpatterns = [
     path("answers/comments/<int:comment_id>", views.AnswerCommentDetail.as_view()),
     path("tags", views.Tags.as_view()),
     path("tags/@<int:user_pk>", views.TagHistory.as_view()),
+    path("make-error", trigger_error),
 ]
