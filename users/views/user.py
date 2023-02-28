@@ -158,7 +158,7 @@ class GithubLogIn(APIView):
             except models.User.DoesNotExist:
                 user = models.User.objects.create(
                     username=user_emails[0]["email"],
-                    name=user_data.get("name") or getRandomUserNickname(),
+                    name=user_data.get("name") or randomNickname,
                     avatar=user_data.get("avatar_url"),
                 )
 
@@ -211,18 +211,16 @@ class KakaoLogIn(APIView):
             kakao_acount = user_data.get("kakao_account")
             profile = kakao_acount.get("profile")
 
-            print(kakao_acount.get("email"))
-            print(profile.get("nickname"))
-            print(profile.get("profile_image_url"))
-
             try:
                 user = models.User.objects.get(username=kakao_acount.get("email"))
 
             except models.User.DoesNotExist:
+                # 정식 출시전에는 이메일 수집이 옵션이라 대비용
+                randomNickname = getRandomUserNickname()
 
                 user = models.User.objects.create(
-                    username=kakao_acount.get("email"),
-                    name=profile.get("nickname") or getRandomUserNickname(),
+                    username=kakao_acount.get("email") or randomNickname,
+                    name=profile.get("nickname") or randomNickname,
                     avatar=profile.get("profile_image_url"),
                 )
                 user.set_unusable_password()
