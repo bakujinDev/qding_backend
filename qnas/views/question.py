@@ -1,6 +1,7 @@
 import re
 from django.conf import settings
 from django.db import transaction, connection
+from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
 from rest_framework import status
@@ -31,27 +32,42 @@ class Questions(APIView):
         start = (page - 1) * settings.PAGE_SIZE
         end = start + settings.PAGE_SIZE
 
-        q = {}
+        q = Q()
 
         search = request.query_params.get("search")
 
         if search:
-            search_regex = re.search("\[(.*?)\]", search)
 
-            if search_regex:
-                tag = search_regex.group(1)
-                search = search.replace(search_regex.group(), "")
+            tag_regex = re.search("\[(.*?)\]", search)
+            if tag_regex:
+                tag = tag_regex.group(1)
+                search = search.replace(tag_regex.group(), "")
 
                 try:
                     tag = models.Tag.objects.get(name__iexact=tag)
-                    q.update({"tag": tag})
+                    q.add(Q(tag=tag), q.AND)
 
-                except tag.DoesNotExist:
-                    raise NotFoundƒ
+                except models.Tag.DoesNotExist:
+                    raise NotFound
 
-            q.update({"title__icontains": search})
+            user_regex = re.findall(r"\buser:\w+\b", search)
+            if user_regex:
+                username = user_regex[0].replace("user:", "")
+                search = search.replace(user_regex[0], "")
 
-        result = models.Question.objects.filter(**q)
+                try:
+                    user = models.User.objects.get(name__icontains=username)
+
+                    q.add(Q(creator=user) | Q(editor=user), q.AND)
+
+                except models.User.DoesNotExist:
+                    raise NotFound
+
+            search = search.replace(" ", "")
+            q.add(Q(title__icontains=search), q.AND)
+
+        result = models.Question.objects.filter(q)
+        print(result)
 
         total = result.count()
 

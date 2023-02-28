@@ -49,6 +49,8 @@ class AskSerializer(serializers.ModelSerializer):
 
 class QuestionListSerializer(serializers.ModelSerializer):
     tag = TagSerializer(read_only=True, many=True)
+    creator = commonSerializers.ProfileUserSerializer(read_only=True)
+    editor = commonSerializers.ProfileUserSerializer(read_only=True)
 
     class Meta:
         model = models.Question
@@ -62,6 +64,8 @@ class QuestionListSerializer(serializers.ModelSerializer):
             "answers_count",
             "tag",
             "votes",
+            "creator",
+            "editor",
         )
 
     def get_answers_count(self, question):
