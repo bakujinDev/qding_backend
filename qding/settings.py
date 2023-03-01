@@ -32,9 +32,14 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "RENDER" not in os.environ
 
-ALLOWED_HOSTS = [
-    "localhost",
-]
+if DEBUG:
+    ALLOWED_HOSTS = [
+        "localhost",
+    ]
+else:
+    ALLOWED_HOSTS = [
+        "https://qding.onrender.com",
+    ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
@@ -186,7 +191,7 @@ if DEBUG:
 
 else:
     CORS_ALLOWED_ORIGINS = [
-        "https://roaring-dodol-d73703.netlify.app/",
+        "https://roaring-dodol-d73703.netlify.app",
     ]
 
 CORS_ALLOW_CREDENTIALS = True
