@@ -164,11 +164,16 @@ class GithubLogIn(APIView):
                 print("does Not Exist")
                 randomNickname = getRandomUserNickname()
 
+                print("email", user_emails[0]["email"])
+                print("name", user_data.get("name") or randomNickname)
+                print("avatar", user_data.get("avatar_url"))
+
                 user = models.User.objects.create(
                     username=user_emails[0]["email"],
                     name=user_data.get("name") or randomNickname,
                     avatar=user_data.get("avatar_url"),
                 )
+                print("create")
 
                 user.set_unusable_password()
                 user.save()
