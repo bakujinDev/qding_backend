@@ -178,10 +178,16 @@ REST_FRAMEWORK = {
     ]
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+if DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://roaring-dodol-d73703.netlify.app/",
+    ]
 
 CORS_ALLOW_CREDENTIALS = True
 
