@@ -168,8 +168,10 @@ class GithubLogIn(APIView):
 
                 user.set_unusable_password()
                 user.save()
+                print(user)
 
             serializer = serializers.PrivateUserSerializer(user)
+            print(serializer.data)
 
             refresh = RefreshToken.for_user(user)
             return Response(
