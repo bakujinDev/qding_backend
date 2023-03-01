@@ -134,8 +134,6 @@ class GithubLogIn(APIView):
             )
             access_token = access_token.json().get("access_token")
 
-            print("access_token", access_token)
-
             user_data = requests.get(
                 "https://api.github.com/user",
                 headers={
@@ -154,33 +152,23 @@ class GithubLogIn(APIView):
             )
             user_emails = user_emails.json()
 
-            print("user_emails", user_emails)
-
             try:
                 user = models.User.objects.get(username=user_emails[0]["email"])
-                print("try")
 
             except models.User.DoesNotExist:
-                print("does Not Exist")
-                randomNickname = getRandomUserNickname()
 
-                print("email", user_emails[0]["email"])
-                print("name", user_data.get("name") or randomNickname)
-                print("avatar", user_data.get("avatar_url"))
+                randomNickname = getRandomUserNickname()
 
                 user = models.User.objects.create(
                     username=user_emails[0]["email"],
                     name=user_data.get("name") or randomNickname,
                     avatar=user_data.get("avatar_url"),
                 )
-                print("create")
 
                 user.set_unusable_password()
                 user.save()
-                print(user)
 
             serializer = serializers.PrivateUserSerializer(user)
-            print(serializer.data)
 
             refresh = RefreshToken.for_user(user)
             return Response(
@@ -214,6 +202,7 @@ class KakaoLogIn(APIView):
             )
 
             access_token = access_token.json().get("access_token")
+            print(access_token)
 
             user_data = requests.get(
                 f"https://kapi.kakao.com/v2/user/me",
@@ -232,6 +221,8 @@ class KakaoLogIn(APIView):
             except models.User.DoesNotExist:
                 # 정식 출시전에는 이메일 수집이 옵션이라 대비용
                 randomNickname = getRandomUserNickname()
+
+                print("username", kakao_acount.get("email") or randomNickname)
 
                 user = models.User.objects.create(
                     username=kakao_acount.get("email") or randomNickname,

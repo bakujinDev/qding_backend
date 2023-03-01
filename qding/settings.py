@@ -214,7 +214,7 @@ GITHUB_ID = "95bab3171f91c36f06cc"
 GITHUB_SECRET = env("GITHUB_SECRET")
 
 KAKAO_ID = "18dba6cfddc30770776200dda585923d"
-KAKAO_REDIRECT_URL = "http://127.0.0.1:3000/auth/kakao"
+KAKAO_REDIRECT_URL = "https://roaring-dodol-d73703.netlify.app/auth/kakao"
 
 # upload setting
 
