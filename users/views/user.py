@@ -134,6 +134,8 @@ class GithubLogIn(APIView):
             )
             access_token = access_token.json().get("access_token")
 
+            print("access_token", access_token)
+
             user_data = requests.get(
                 "https://api.github.com/user",
                 headers={
@@ -151,6 +153,8 @@ class GithubLogIn(APIView):
                 },
             )
             user_emails = user_emails.json()
+
+            print("user_emails", user_emails)
 
             try:
                 user = models.User.objects.get(username=user_emails[0]["email"])
