@@ -158,8 +158,10 @@ class GithubLogIn(APIView):
 
             try:
                 user = models.User.objects.get(username=user_emails[0]["email"])
+                print("try")
 
             except models.User.DoesNotExist:
+                print("does Not Exist")
                 user = models.User.objects.create(
                     username=user_emails[0]["email"],
                     name=user_data.get("name") or randomNickname,
