@@ -67,7 +67,6 @@ class Questions(APIView):
             q.add(Q(title__icontains=search), q.AND)
 
         result = models.Question.objects.filter(q)
-        print(result)
 
         total = result.count()
 
@@ -108,7 +107,6 @@ class Questions(APIView):
                 raise ParseError(exception)
 
         else:
-            print(request.data.get("tag"))
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST,

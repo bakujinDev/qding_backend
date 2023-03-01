@@ -202,7 +202,6 @@ class KakaoLogIn(APIView):
             )
 
             access_token = access_token.json().get("access_token")
-            print(access_token)
 
             user_data = requests.get(
                 f"https://kapi.kakao.com/v2/user/me",
@@ -221,8 +220,6 @@ class KakaoLogIn(APIView):
             except models.User.DoesNotExist:
                 # 정식 출시전에는 이메일 수집이 옵션이라 대비용
                 randomNickname = getRandomUserNickname()
-
-                print("username", kakao_acount.get("email") or randomNickname)
 
                 user = models.User.objects.create(
                     username=kakao_acount.get("email") or randomNickname,
