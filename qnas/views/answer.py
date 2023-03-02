@@ -10,13 +10,14 @@ from qnas import models
 from qnas import serializers
 from common.views import check_owner, get_page
 from users import models as usersModels
+from users import function
 
 
 class AnswerPost(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, question_id):
-        question = models.Question.objects.get(pk=question_id)
+        question = models.Question.objects.select_related("creator").get(pk=question_id)
         serializer = serializers.AnswerSerializer(
             data=request.data,
         )
@@ -26,6 +27,15 @@ class AnswerPost(APIView):
                 question=question,
             )
             serializer = serializers.AnswerSerializer(comment)
+
+            answer_id = serializer.data.get("pk")
+
+            function.add_notifications_to_user_list(
+                question,
+                request.user,
+                "새로운 답변이 추가되었어요",
+                push_url=f"/qna/{question_id}?answerId={answer_id}",
+            )
             return Response(serializer.data)
 
         else:

@@ -85,6 +85,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Answer
         fields = (
+            'pk',
             "creator",
             "question",
             "content",
